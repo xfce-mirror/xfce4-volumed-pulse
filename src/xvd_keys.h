@@ -1,0 +1,39 @@
+/*
+ *  xfce4-volumed - Volume management daemon for XFCE 4
+ *
+ *  Copyright © 2009 Steve Dodier <sidnioulz@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _XVD_KEYS_H
+#define _XVD_KEYS_H
+
+#include <stdio.h>
+#include <string.h>
+
+#include "xvd_data_types.h"
+
+struct xvd_binding_t {
+  xcb_keycode_t code;
+  uint16_t mod;
+};
+
+void 
+xvd_keys_init(XvdInstance *Inst);
+
+void 
+xvd_keys_release(XvdInstance *Inst);
+
+#endif

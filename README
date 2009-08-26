@@ -1,0 +1,12 @@
+== Installation instructions
+
+Please read INSTALL
+
+== Reporting a bug
+
+https://bugs.launchpad.net/xfce4-volumed
+
+== Known Gstreamer prooblems
+ * No sound card detected: if this happens you're probably missing a GStreamer
+   plugin for your sound system. If you're using ALSA then installing 
+   gstreamer0.10-alsa should fix it.
