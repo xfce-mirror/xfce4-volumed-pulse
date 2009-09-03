@@ -34,6 +34,9 @@ _xvd_keys_is_symbol(xcb_keycode_t elem,
 	gint i = 0;
 	gboolean belongs = FALSE;
 	
+	if (list == NULL)
+		return FALSE;
+	
 	while (list[i] != XCB_NO_SYMBOL) {
 		belongs |= (elem == list[i]);
 		i++;
@@ -59,39 +62,42 @@ _xvd_keys_handle_events(GIOChannel *source,
 					kpe = (xcb_key_press_event_t *)ev;
 					
 					if (_xvd_keys_is_symbol(kpe->detail, Inst->keyRaise)) {
-						xvd_mixer_change_volume (Inst, Inst->vol_step);
-						#ifdef HAVE_LIBNOTIFY
-						if (!Inst->muted) {
+						if (xvd_mixer_change_volume (Inst, Inst->vol_step)) {
+							#ifdef HAVE_LIBNOTIFY
+/*							if (!Inst->muted) {*/
 							if (Inst->current_vol == 100)
 								xvd_notify_overshoot_notification (Inst);
 							else
 								xvd_notify_volume_notification (Inst);
+/*							}*/
+							#endif
 						}
-						#endif
 					}
 
 					else if (_xvd_keys_is_symbol(kpe->detail, Inst->keyLower)) {
-						xvd_mixer_change_volume (Inst, (Inst->vol_step * -1));
-						#ifdef HAVE_LIBNOTIFY
-						if (!Inst->muted) {
+						if (xvd_mixer_change_volume (Inst, (Inst->vol_step * -1))) {
+							#ifdef HAVE_LIBNOTIFY
+/*							if (!Inst->muted) {*/
 							if (Inst->current_vol == 0)
 								xvd_notify_undershoot_notification (Inst);
 							else
 								xvd_notify_volume_notification (Inst);
+/*							}*/
+							#endif
 						}
-						#endif
 					}
 
 					else if (_xvd_keys_is_symbol(kpe->detail, Inst->keyMute)) {
-						xvd_mixer_toggle_mute (Inst);
-						#ifdef HAVE_LIBNOTIFY
-						if (Inst->muted)
-							xvd_notify_notification (Inst, "notification-audio-volume-muted", 0);
-						else {
-							xvd_mixer_init_volume (Inst);
-							xvd_notify_volume_notification (Inst);
+						if (xvd_mixer_toggle_mute (Inst)) {
+							#ifdef HAVE_LIBNOTIFY
+							if (Inst->muted)
+								xvd_notify_notification (Inst, "notification-audio-volume-muted", 0);
+							else {
+								xvd_mixer_init_volume (Inst);
+								xvd_notify_volume_notification (Inst);
+							}
+							#endif
 						}
-						#endif
 					}
 					break;
 				
@@ -216,9 +222,11 @@ xvd_keys_init(XvdInstance *Inst)
 void 
 xvd_keys_release (XvdInstance *Inst)
 {
-	xcb_key_symbols_free (Inst->kss);
 	g_free (Inst->keyRaise);
 	g_free (Inst->keyLower);
 	g_free (Inst->keyMute);
-	xcb_disconnect (Inst->conn);
+	if (Inst->kss)
+		xcb_key_symbols_free (Inst->kss);
+	if (Inst->conn)
+		xcb_disconnect (Inst->conn);
 }

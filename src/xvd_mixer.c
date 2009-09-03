@@ -1,7 +1,9 @@
 /*
  *  xfce4-volumed - Volume management daemon for XFCE 4
  *
- *  Copyright © 2009 Steve Dodier <sidnioulz@gmail.com>
+ *  Copyright © 2009
+ *		Steve Dodier <sidnioulz@gmail.com>
+ *		Jannis Pohlmann <jannis@xfce.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,6 +41,7 @@ _xvd_mixer_filter_mixer (GstMixer *tmp_mixer,
 	gchar             *name;
 	gchar             *p;
 	gint               length;
+	gint              *counter = user_data;
 
 	/* Get long name of the mixer element */
 	factory = gst_element_get_factory (GST_ELEMENT (tmp_mixer));
@@ -49,7 +52,7 @@ _xvd_mixer_filter_mixer (GstMixer *tmp_mixer,
 	
 	/* Fall back to default name if neccessary */
 	if (G_LIKELY (device_name == NULL))
-		device_name = g_strdup ("Unknown Volume Control 0");
+		device_name = g_strdup_printf ("Unknown Volume Control %d", (*counter)++);
 
 	/* Build display name */
 	name = g_strdup_printf ("%s (%s)", device_name, long_name);
@@ -98,13 +101,15 @@ _xvd_mixer_bus_message (GstBus *bus, GstMessage *message,
 	{
 		gst_mixer_message_parse_mute_toggled (message, &msg_track, &Inst->muted);
 		g_object_get (msg_track, "label", &label, NULL);
-		if (g_strcmp0 (Inst->track_label, label) != 0)
+		if (g_utf8_collate (Inst->track_label, label) != 0)
 			return;
+#ifdef HAVE_LIBNOTIFY
 		if (Inst->muted)
 			xvd_notify_notification (Inst, "notification-audio-volume-muted", 0);
 		else {
 			xvd_mixer_init_volume (Inst);
 			xvd_notify_volume_notification (Inst);
+#endif
 		}
 		g_free (label);
 	}
@@ -112,18 +117,17 @@ _xvd_mixer_bus_message (GstBus *bus, GstMessage *message,
 	{
 		gst_mixer_message_parse_volume_changed (message, &msg_track, &volumes, &num_channels);
 		g_object_get (msg_track, "label", &label, NULL);
-		if (g_strcmp0 (Inst->track_label, label) != 0)
+		if (g_utf8_collate (Inst->track_label, label) != 0)
 			return;
 		xvd_calculate_avg_volume (Inst, volumes, num_channels);
-		if (!Inst->muted)
-			xvd_notify_volume_notification (Inst);
+#ifdef HAVE_LIBNOTIFY
+		xvd_notify_volume_notification (Inst);
+#endif
 		g_free (label);
 	}
 	else if (type == GST_MIXER_MESSAGE_MIXER_CHANGED) {
 		// This kind of message shouldn't happen on an hardware card
-		#ifndef NDEBUG
-		g_print ("GST_MIXER_MESSAGE_MIXER_CHANGED event\n");
-		#endif
+		g_debug ("GST_MIXER_MESSAGE_MIXER_CHANGED event\n");
 	}
 }
 #endif
@@ -132,7 +136,7 @@ void
 xvd_mixer_init(XvdInstance *Inst)
 {
 	/* Get list of all available mixer devices */
-	Inst->mixers = gst_audio_default_registry_mixer_filter (_xvd_mixer_filter_mixer, FALSE, Inst);
+	Inst->mixers = gst_audio_default_registry_mixer_filter (_xvd_mixer_filter_mixer, FALSE, &(Inst->nameless_cards_count));
 }
 
 #ifdef HAVE_LIBNOTIFY
@@ -149,7 +153,7 @@ xvd_mixer_init_bus(XvdInstance *Inst)
 void 
 xvd_mixer_init_volume(XvdInstance *Inst)
 {
-		if ((Inst->card) && (Inst->track)) {
+	if ((Inst->card) && (Inst->track)) {
 		gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
 		gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
 		xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
@@ -158,101 +162,149 @@ xvd_mixer_init_volume(XvdInstance *Inst)
 }
 
 void 
-xvd_get_xfconf_card_from_mixer(XvdInstance *Inst)
+xvd_get_card_from_mixer(XvdInstance *Inst, 
+						const gchar *wanted_card,
+						const gchar *preferred_fallback)
 {
 	GList      *iter;
-	gchar      *xvdgc_card_name;
-	
+	gchar      *tmp_card_name = NULL, *first_name = NULL;
+	GstElement *fallback_card = NULL, *first_card = NULL;
+
+	// Cleaning the current card	
 	Inst->card = NULL;
-
+	xvd_clean_card_name (Inst);
+	
+	// We try to find the card the user wants
 	for (iter = g_list_first (Inst->mixers); iter != NULL; iter = g_list_next (iter)) {
-		xvdgc_card_name = g_object_get_data (G_OBJECT (iter->data), "xfce-mixer-internal-name");
-
-		if (G_UNLIKELY (g_utf8_collate (Inst->card_name, xvdgc_card_name) == 0)) {
+		tmp_card_name = g_object_get_data (G_OBJECT (iter->data), "xfce-mixer-internal-name");
+		
+		if ((wanted_card != NULL) && (G_UNLIKELY (g_utf8_collate (wanted_card, tmp_card_name) == 0))) {
 		  Inst->card = iter->data;
 		  break;
 		}
+
+		// If the fallback card label is set, we save the fallback card in case the wanted one isn't found
+		if ((preferred_fallback != NULL) && (G_UNLIKELY (g_utf8_collate (preferred_fallback, tmp_card_name) == 0))) {
+		  fallback_card = iter->data;
+		}
+		
+		// If no card is asked by the user, or if the asked card(s) couldn't be found, use the first one available
+		if (first_name == NULL) {
+			first_card = iter->data;
+			first_name = g_strdup (tmp_card_name);
+			if ((wanted_card == NULL) && (preferred_fallback == NULL))
+				break;
+		}
 	}
 	
-	if (NULL == Inst->card) {
-		if (Inst->card_name) {
-			xvd_clean_card_name (Inst);
-			g_warning ("The card set in xfconf could not be found.\n");
-		}
-		iter = g_list_first (Inst->mixers);
-		if ((NULL == iter) || (NULL == iter->data)) {
-			Inst->card = NULL;
-			Inst->card_name = NULL;
-			Inst->xvd_init_error = TRUE;
-			g_warning ("Gstreamer didn't return any sound card. Init error, going idle.\n");
-			return;
+	// We now check if the card was set or if we should use fallback / first instead
+	if (NULL != Inst->card) {
+		g_debug ("The card %s was found on the card and set as the current card.\n", wanted_card);
+	}
+	else if (NULL != fallback_card) {
+		g_debug ("The wanted card could not be found, using the fallback one instead.\n");
+		Inst->card_name = g_strdup (preferred_fallback);
+		Inst->card = fallback_card;
+	}
+	else if (NULL != first_card) {
+		if (wanted_card != NULL) {
+			g_debug ("The wanted card could not be found, using the first one instead.\n");
 		}
 		else {
-			xvdgc_card_name = g_object_get_data (G_OBJECT (iter->data), "xfce-mixer-internal-name");
-			Inst->card_name = g_strdup (xvdgc_card_name);
-			Inst->card = iter->data;
-			xvd_xfconf_set_card(Inst, Inst->card_name);
-			g_warning ("The xfconf property %s has been defaulted to %s.\n", XFCONF_MIXER_ACTIVECARD, Inst->card_name);
+			g_debug ("Setting the first card in the xfconf property since there was no card set.\n");
+			xvd_xfconf_set_card (Inst, first_name);
 		}
+		Inst->card_name = g_strdup (first_name);
+		Inst->card = first_card;
+	}
+	else {
+		g_debug ("Error: there is no sound card on this machine.\n");
+		Inst->xvd_init_error = TRUE;
+		return;
 	}
 	
+	g_free (first_name);
+
 	#ifdef HAVE_LIBNOTIFY
+	gst_object_unref (Inst->bus);
 	gst_element_set_bus (Inst->card, Inst->bus);
 	#endif
 }
 
 void 
-xvd_get_xfconf_track_from_mixer(XvdInstance *Inst, 
-								const gchar *xfconf_val)
+xvd_get_track_from_mixer(XvdInstance *Inst, 
+							const gchar *wanted_track,
+							const gchar *preferred_fallback)
 {
 	const GList   *iter;
 	gchar         *tmp_label = NULL, *master_label = NULL, *first_label = NULL;
-	GstMixerTrack *master_track = NULL, *first_track = NULL;
+	GstMixerTrack *fallback_track = NULL, *master_track = NULL, *first_track = NULL;
 	
-	if (Inst->card_name) {
+	// We clean the current track before setting another one
+	xvd_clean_track (Inst);
+	Inst->track = NULL;
+	
+	// We're going to go through the available tracks
+	if (Inst->card) {
 		for (iter = gst_mixer_list_tracks (GST_MIXER (Inst->card)); iter != NULL; iter = g_list_next (iter)) {
 			g_object_get (GST_MIXER_TRACK (iter->data), "label", &tmp_label, NULL);
 			
-			if (first_label == NULL) {
-				first_track = iter->data;
-				first_label = g_strdup (tmp_label);
-			}
-			
-			if (master_label == NULL) {
-				if (TRUE == GST_MIXER_TRACK_HAS_FLAG ((GstMixerTrack *)iter->data, GST_MIXER_TRACK_MASTER)) {
-					master_track = iter->data;
-					master_label = g_strdup (tmp_label);
-				}
-			}
-			
-			if ((xfconf_val != NULL) && (g_utf8_collate (tmp_label, xfconf_val) == 0)) {
+			// If the wanted track is requested and found
+			if ((wanted_track != NULL) && (g_utf8_collate (tmp_label, wanted_track) == 0)) {
 				Inst->track_label = g_strdup (tmp_label);
 				Inst->track = iter->data;
 				g_free (tmp_label);
 				break;
 			}
+			
+			// If the fallback track label is set, we save the fallback track in case the wanted one isn't found
+			if ((preferred_fallback != NULL) && (g_utf8_collate (tmp_label, preferred_fallback) == 0)) {
+				fallback_track = iter->data;
+			}
+			
+			// If we spot a Master track in the card, we save it in case the xfconf / fallback ones can't be found
+			if ((master_label == NULL) && (TRUE == GST_MIXER_TRACK_HAS_FLAG ((GstMixerTrack *)iter->data, GST_MIXER_TRACK_MASTER))) {
+				master_track = iter->data;
+				master_label = g_strdup (tmp_label);
+			}
+			
+			// We save the first track of the card in case there is no xfconf / fallback / master track
+			if (first_label == NULL) {
+				first_track = iter->data;
+				first_label = g_strdup (tmp_label);
+			}
+			
 			g_free (tmp_label);
 		}
 	}
+	else {
+		g_debug ("Error: there is no sound card to search tracks from.\n");
+		Inst->xvd_init_error = TRUE;
+		return;
+	}
 	
-	if (NULL == Inst->track_label) {
-		g_warning ("There is no xfconf track, trying the first Master track of the card.\n");
-		if (NULL == master_label) {
-			g_warning ("There is no Master track either, trying the first track of the card.\n");
-			if (NULL == first_label) {
-				g_warning ("The card doesn't have any track (or there is no card). Xvd init error, going to idle.\n");
-				Inst->xvd_init_error = TRUE;
-				return;
-			}
-			else {
-				Inst->track_label = g_strdup (first_label);
-				Inst->track = first_track;
-			}
-		}
-		else {
-			Inst->track_label = g_strdup (master_label);
-			Inst->track = master_track;
-		}
+	if (NULL != Inst->track) {
+		g_debug ("The track %s was found on the card and set as the current track.\n", wanted_track);
+	}
+	else if (NULL != fallback_track) {
+		g_debug ("The wanted track could not be found, using the fallback one instead.\n");
+		Inst->track_label = g_strdup (preferred_fallback);
+		Inst->track = fallback_track;
+	}
+	else if (NULL != master_track) {
+		g_debug ("The wanted track could not be found, using the first Master one instead.\n");
+		Inst->track_label = g_strdup (master_label);
+		Inst->track = master_track;
+	}
+	else if (NULL != first_track) {
+		g_debug ("The wanted track could not be found, using the first one instead.\n");
+		Inst->track_label = g_strdup (first_label);
+		Inst->track = first_track;
+	}
+	else {
+		g_debug ("Error: the current sound card doesn't have any track.\n");
+		Inst->xvd_init_error = TRUE;
+		return;
 	}
 	
 	g_free (first_label);
@@ -260,9 +312,7 @@ xvd_get_xfconf_track_from_mixer(XvdInstance *Inst,
 	
 	if (Inst->xvd_init_error) {
 		Inst->xvd_init_error = FALSE;
-		#ifndef NDEBUG
-		g_print ("The daemon apparently recovered from a card/track initialisation error.\n");
-		#endif
+		g_debug ("The daemon apparently recovered from a card/track initialisation error.\n");
 	}
 }
 
@@ -290,9 +340,8 @@ xvd_clean_cards(XvdInstance *Inst)
 void
 xvd_clean_mixer_bus(XvdInstance *Inst)
 {
-	g_signal_handler_disconnect (Inst->bus, Inst->bus_id);
-
 	gst_bus_remove_signal_watch (Inst->bus);
+	g_signal_handler_disconnect (Inst->bus, Inst->bus_id);
 	gst_object_unref (Inst->bus);
 }
 #endif
@@ -301,7 +350,6 @@ void
 xvd_clean_track(XvdInstance *Inst)
 {
 	g_free (Inst->track_label);
-/*	Inst->track_label = NULL;*/
 }
 
 
@@ -323,11 +371,11 @@ xvd_calculate_avg_volume(XvdInstance *Inst,
 	}
 }
 
-void 
+gboolean 
 xvd_mixer_change_volume(XvdInstance *Inst, 
 						gint step)
 {
-	if ((Inst->card_name) && (Inst->track)) {
+	if ((Inst->card) && (Inst->track)) {
 		gint i;
 		gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
 		
@@ -347,14 +395,19 @@ xvd_mixer_change_volume(XvdInstance *Inst,
 		
 		gst_mixer_set_volume (GST_MIXER (Inst->card), Inst->track, volumes);
 		g_free (volumes);
+		
+		return TRUE;
 	}
+	return FALSE;
 }
 
-void 
+gboolean 
 xvd_mixer_toggle_mute(XvdInstance *Inst)
 {
-	if ((Inst->card_name) && (Inst->track)) {
+	if ((Inst->card) && (Inst->track)) {
 		gst_mixer_set_mute (GST_MIXER (Inst->card), Inst->track, !(GST_MIXER_TRACK_HAS_FLAG (Inst->track, GST_MIXER_TRACK_MUTE)));
 		Inst->muted = (GST_MIXER_TRACK_HAS_FLAG (Inst->track, GST_MIXER_TRACK_MUTE));
+		return TRUE;
 	}
+	return FALSE;
 }

@@ -80,6 +80,8 @@ xvd_shutdown()
 	xvd_clean_track (Inst);
 	xvd_keys_release (Inst);
 	xvd_xfconf_shutdown (Inst);
+	
+	//TODO xvd_instance_free
 }
 
 static void 
@@ -88,10 +90,14 @@ xvd_instance_init(XvdInstance *i)
 	i->mixers = NULL;
 	i->card = NULL;
 	i->card_name = NULL;
+	i->nameless_cards_count = 0;
 	i->track = NULL;
 	i->track_label = NULL;
 	i->error = NULL;
 	i->chan = NULL;
+	i->xfconf_card_name = NULL;
+	i->xfconf_track_label = NULL;
+	i->previously_set_track_label = NULL;
 	i->bus = NULL;
 	i->bus_id = 0;
 	i->loop = NULL;
@@ -125,10 +131,8 @@ main(gint argc, gchar **argv)
 	xvd_xfconf_init (Inst);
 	
 	/* Get card/track from xfconf */
-	Inst->card_name = xvd_get_xfconf_card (Inst);
-	
-	if (NULL == Inst->card_name) {
-		g_warning ("There seems to be no active card defined in the xfce mixer.\n");
+	if (!xvd_xfconf_get_card (Inst)) {
+		g_debug ("Main: There seems to be no active card defined in xfconf.\n");
 	}
 	
 	/* Mixer init */
@@ -137,15 +141,14 @@ main(gint argc, gchar **argv)
 	xvd_mixer_init_bus (Inst);
 	#endif
 	
-	// A mutex for the track might help in very unlikely cases.
-	xvd_get_xfconf_card_from_mixer (Inst);
+	// A mutex for the track might help in very unlikely cases. //TODO
+	xvd_get_card_from_mixer (Inst, Inst->xfconf_card_name, NULL);
 	
-	gchar *tmp_track = xvd_get_xfconf_track (Inst);
-	xvd_get_xfconf_track_from_mixer (Inst, tmp_track);
-	g_free (tmp_track);
+	xvd_xfconf_get_track (Inst);
+	xvd_get_track_from_mixer (Inst, Inst->xfconf_track_label, NULL);
 	
 	xvd_mixer_init_volume (Inst);
-	xvd_load_xfconf_vol_step (Inst);
+	xvd_xfconf_get_vol_step (Inst);
 	
 	/* Libnotify init and idle till ready for the main loop */
 	g_set_application_name (XVD_APPNAME);
@@ -153,10 +156,9 @@ main(gint argc, gchar **argv)
 	xvd_notify_init (Inst, XVD_APPNAME);
 	#endif
 	
-	while (Inst->xvd_init_error) {
-		sleep (1);
-	}
-	
+/*	while (Inst->xvd_init_error) {*/
+/*		sleep (1);*/
+/*	}*/ //superseded ? XXX
 	
 	Inst->loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (Inst->loop);

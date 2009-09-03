@@ -1,3 +1,7 @@
+2009-09-03  Steve Dodier <sidnioulz@gmail.com>
+
+	* Reworking the whole xfconf / mixer code to make it more solid
+
 2009-08-23  Steve Dodier <sidnioulz@gmail.com>
 
 	* Making sure that nothing wrong is done if the card exists but is trackless

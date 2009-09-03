@@ -45,6 +45,7 @@ typedef struct {
 	GList     			*mixers;
 	GstElement      	*card;
 	gchar				*card_name;
+	gint				nameless_cards_count;
 	
 	/* Tracks for the card */
 	GstMixerTrack   	*track;
@@ -53,6 +54,9 @@ typedef struct {
 	/* Xfconf vars */
 	GError     			*error;
 	XfconfChannel		*chan;
+	gchar				*xfconf_card_name;
+	gchar           	*xfconf_track_label;
+	gchar				*previously_set_track_label;
 
 	/* Gstreamer bus vars */
 	GstBus				*bus;

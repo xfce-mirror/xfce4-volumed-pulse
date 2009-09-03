@@ -40,11 +40,14 @@ void
 xvd_mixer_init_volume(XvdInstance *Inst);
 
 void 
-xvd_get_xfconf_card_from_mixer(XvdInstance *Inst);
+xvd_get_card_from_mixer(XvdInstance *Inst, 
+						const gchar *wanted_card,
+						const gchar *preferred_fallback);
 
 void 
-xvd_get_xfconf_track_from_mixer(XvdInstance *Inst, 
-								const gchar *xfconf_val);
+xvd_get_track_from_mixer(XvdInstance *Inst, 
+							const gchar *wanted_track,
+							const gchar *preferred_fallback);
 
 void 
 xvd_clean_card_name(XvdInstance *Inst);
@@ -65,11 +68,11 @@ xvd_calculate_avg_volume(XvdInstance *Inst,
 						 gint *volumes, 
 						 gint num_channels);
 
-void 
+gboolean  
 xvd_mixer_change_volume(XvdInstance *Inst, 
 						gint step);
 
-void 
+gboolean 
 xvd_mixer_toggle_mute(XvdInstance *Inst);
 
 #endif
