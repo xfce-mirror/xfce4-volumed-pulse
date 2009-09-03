@@ -31,24 +31,24 @@ xvd_notify_notification(XvdInstance *Inst,
 {
 	if (Inst->notifyosd) {
 		NotifyNotification* notification	= NULL;
-		gchar* body							= NULL;
+		gchar* title						= NULL;
 		
 		if ((icon != NULL) && (g_strcmp0(icon, "notification-audio-volume-muted") == 0)) {
 			// TRANSLATORS: this is the body of the ATK interface of the volume notifications. Just before this, there is the 'Volume' word (as a notification title). If it would look too weird in your locale, translate this string as 'The volume is muted' instead.
-			body = g_strdup ("is muted");
+			title = g_strdup ("Volume is muted");
 		}
 		else {
 			// TRANSLATORS: %d is the volume displayed as a percent, and %c is replaced by '%'. If it doesn't fit in your locale feel free to file a bug.
-			body = g_strdup_printf ("is at %d%c", value, '%');
+			title = g_strdup_printf ("Volume is at %d%c", value, '%');
 		}
 		
 		notification = notify_notification_new (
-					"Volume",
-					body,
+					title,
+					NULL,
 					icon,
 					NULL);
 		
-		g_free (body);
+		g_free (title);
 		
 		notify_notification_set_hint_int32 (notification,
 							"value",
