@@ -77,7 +77,6 @@ typedef struct {
 
 	/* Other Xvd vars */
 	GMainLoop			*loop;
-	gboolean			xvd_init_error;
 	gboolean			notifyosd;
 } XvdInstance;
 

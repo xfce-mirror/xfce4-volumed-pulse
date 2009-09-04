@@ -18,7 +18,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
 
 #include "xvd_keys.h"
@@ -155,10 +155,6 @@ main(gint argc, gchar **argv)
 	#ifdef HAVE_LIBNOTIFY
 	xvd_notify_init (Inst, XVD_APPNAME);
 	#endif
-	
-/*	while (Inst->xvd_init_error) {*/
-/*		sleep (1);*/
-/*	}*/ //superseded ? XXX
 	
 	Inst->loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (Inst->loop);

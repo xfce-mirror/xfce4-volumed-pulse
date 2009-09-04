@@ -36,19 +36,18 @@ _xvd_xfconf_reinit_card(XvdInstance *Inst)
 	}
 	
 	// If the card set in xfconf is the same as the currently used one, we do nothing
-	if ((Inst->card_name != NULL) && (g_utf8_collate (Inst->xfconf_card_name, Inst->card_name) == 0)) {
+	if ((Inst->card_name != NULL) && (g_strcmp0 (Inst->xfconf_card_name, Inst->card_name) == 0)) {
 		return;
 	}
 	
-	// We now clean the current track and try to replace it with the one set in xfconf
+	// We now try to replace it with the one set in xfconf
 	previous_card = g_strdup (Inst->card_name);
-	xvd_clean_card_name (Inst);
 	xvd_get_card_from_mixer (Inst, Inst->xfconf_card_name, previous_card);
 	
 	// At this stage the track grabbed is wrong, but we expect the user to also update the track key
 	
 	// We check if the card has been correctly set
-	if ((Inst->card_name == NULL) || (g_utf8_collate (Inst->xfconf_card_name, Inst->card_name) != 0)) {
+	if ((Inst->card_name == NULL) || (g_strcmp0 (Inst->xfconf_card_name, Inst->card_name) != 0)) {
 		g_debug ("The card chosen in xfconf could not be set, another one was set instead\nChosen: %s\nSet: %s\n",
 														Inst->xfconf_card_name,
 														Inst->card_name);
@@ -58,6 +57,9 @@ _xvd_xfconf_reinit_card(XvdInstance *Inst)
 		g_free (Inst->xfconf_card_name);
 		Inst->xfconf_card_name = g_strdup (Inst->card_name);
 	}
+	else {
+		g_debug ("The card change succeeded with the new xfconf card %s.\n", Inst->xfconf_card_name);
+	}
 	
 	g_free (previous_card);
 	
@@ -65,7 +67,7 @@ _xvd_xfconf_reinit_card(XvdInstance *Inst)
 	// So we check if the track belongs to our new card.
 	if (Inst->previously_set_track_label) {
 		xvd_get_track_from_mixer (Inst, Inst->previously_set_track_label, Inst->track_label);
-		if (g_utf8_collate (Inst->previously_set_track_label, Inst->track_label) == 0) {
+		if (g_strcmp0 (Inst->previously_set_track_label, Inst->track_label) == 0) {
 			xvd_xfconf_set_track (Inst, Inst->previously_set_track_label);
 			g_free (Inst->previously_set_track_label);
 			g_debug ("The previously set xfconf track was a track from the newly set sound card.\n");
@@ -75,8 +77,10 @@ _xvd_xfconf_reinit_card(XvdInstance *Inst)
 	else {
 		xvd_get_track_from_mixer (Inst, Inst->track_label, NULL);
 	}
+	
+	xvd_mixer_init_volume (Inst);
 
-	g_debug ("Xfconf reinit: the card is now %s, the track (probably wrong) is %s and the volume is %d\n", Inst->card_name, Inst->track_label, Inst->current_vol);
+	g_debug ("Xfconf reinit: the card is now %s, the track is %s and the volume is %d\n", Inst->card_name, Inst->track_label, Inst->current_vol);
 }
 
 static void
@@ -95,17 +99,16 @@ _xvd_xfconf_reinit_track(XvdInstance *Inst)
 	}
 	
 	// If the track set in xfconf is the same as the currently used one, we do nothing
-	if ((Inst->track_label != NULL) && (g_utf8_collate (Inst->xfconf_track_label, Inst->track_label) == 0)) {
+	if ((Inst->track_label != NULL) && (g_strcmp0 (Inst->xfconf_track_label, Inst->track_label) == 0)) {
 		return;
 	}
 	
-	// We now clean the current track and try to replace it with the one set in xfconf
+	// We now try to replace it with the one set in xfconf
 	previous_track = g_strdup (Inst->track_label);
-	xvd_clean_track (Inst);
 	xvd_get_track_from_mixer (Inst, Inst->xfconf_track_label, previous_track);
 
 	// We check if the track has been correctly set
-	if ((Inst->track_label == NULL) || (g_utf8_collate (Inst->xfconf_track_label, Inst->track_label) != 0)) {
+	if ((Inst->track_label == NULL) || (g_strcmp0 (Inst->xfconf_track_label, Inst->track_label) != 0)) {
 		// If not, we save the valid track in xfconf instead of the user chosen
 		Inst->previously_set_track_label = g_strdup (Inst->xfconf_track_label);
 		g_debug ("The track chosen in xfconf (%s) doesn't exist in the current card. It'll be tried again after a sound card change.\nNow using %s.\n",
@@ -197,7 +200,7 @@ xvd_xfconf_get_card(XvdInstance *Inst)
 void 
 xvd_xfconf_set_card(XvdInstance *Inst, gchar *value)
 {
-	g_debug ("%s %s\n", "Setting the xfconf card name to", Inst->xfconf_card_name);
+	g_debug ("%s %s\n", "Setting the xfconf card name to", value);
 	xfconf_channel_set_string (Inst->chan, XFCONF_MIXER_ACTIVECARD, value);
 }
 
@@ -223,7 +226,7 @@ xvd_xfconf_get_track(XvdInstance *Inst)
 void 
 xvd_xfconf_set_track(XvdInstance *Inst, gchar *value)
 {
-	g_debug("%s %s\n", "Setting the xfconf card name to", Inst->xfconf_card_name);
+	g_debug("%s %s\n", "Setting the xfconf card name to", value);
 	xfconf_channel_set_string (Inst->chan, XFCONF_MIXER_ACTIVETRACK, value);
 }
 

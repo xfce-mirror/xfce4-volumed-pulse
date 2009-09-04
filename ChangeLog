@@ -1,3 +1,11 @@
+2009-09-04  Steve Dodier <sidnioulz@gmail.com>
+
+	* Volume initialisation now includes mute check
+	* Fixed a bug in volume calculation due to float truncating
+	* Replaced g_utf8_collate by g_strcmp0. Less accurate but at least doesn't corrupt strings
+	* Removed obsolete code
+	* Fixed an error preventing from building without libnotify
+
 2009-09-03  Steve Dodier <sidnioulz@gmail.com>
 
 	* Reworking the whole xfconf / mixer code to make it more solid

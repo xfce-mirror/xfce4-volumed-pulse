@@ -1,4 +1,4 @@
-AC_INIT([xfce4-volumed], [0.1.3], [http://bugs.launchpad.net/xfce4-volumed])
+AC_INIT([xfce4-volumed], [0.1.4], [http://bugs.launchpad.net/xfce4-volumed])
 AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
 
 AC_CONFIG_SRCDIR([src/main.c])
@@ -49,9 +49,9 @@ if test "$with_libnotify" = "yes" || test "$HAVE_LIBNOTIFY" = "1"; then
    HAVE_LIBNOTIFY=1
    AC_SUBST(LIBNOTIFY_CFLAGS)
    AC_SUBST(LIBNOTIFY_LIBS)
+   AC_DEFINE(HAVE_LIBNOTIFY, 1, [LIBNOTIFY support])
 fi
 AC_SUBST(HAVE_LIBNOTIFY)
-AC_DEFINE(HAVE_LIBNOTIFY, $HAVE_LIBNOTIFY, [LIBNOTIFY support])
 AM_CONDITIONAL(HAVE_LIBNOTIFY, [test "$HAVE_LIBNOTIFY" = "1"])
 
 if test "x$enable_debug" = "xyes"; then

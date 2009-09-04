@@ -101,7 +101,7 @@ _xvd_mixer_bus_message (GstBus *bus, GstMessage *message,
 	{
 		gst_mixer_message_parse_mute_toggled (message, &msg_track, &Inst->muted);
 		g_object_get (msg_track, "label", &label, NULL);
-		if (g_utf8_collate (Inst->track_label, label) != 0)
+		if (g_strcmp0 (Inst->track_label, label) != 0)
 			return;
 #ifdef HAVE_LIBNOTIFY
 		if (Inst->muted)
@@ -117,7 +117,7 @@ _xvd_mixer_bus_message (GstBus *bus, GstMessage *message,
 	{
 		gst_mixer_message_parse_volume_changed (message, &msg_track, &volumes, &num_channels);
 		g_object_get (msg_track, "label", &label, NULL);
-		if (g_utf8_collate (Inst->track_label, label) != 0)
+		if (g_strcmp0 (Inst->track_label, label) != 0)
 			return;
 		xvd_calculate_avg_volume (Inst, volumes, num_channels);
 #ifdef HAVE_LIBNOTIFY
@@ -158,6 +158,7 @@ xvd_mixer_init_volume(XvdInstance *Inst)
 		gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
 		xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
 		g_free (volumes);
+		Inst->muted = (GST_MIXER_TRACK_HAS_FLAG (Inst->track, GST_MIXER_TRACK_MUTE));
 	}
 }
 
@@ -178,13 +179,14 @@ xvd_get_card_from_mixer(XvdInstance *Inst,
 	for (iter = g_list_first (Inst->mixers); iter != NULL; iter = g_list_next (iter)) {
 		tmp_card_name = g_object_get_data (G_OBJECT (iter->data), "xfce-mixer-internal-name");
 		
-		if ((wanted_card != NULL) && (G_UNLIKELY (g_utf8_collate (wanted_card, tmp_card_name) == 0))) {
+		if ((wanted_card != NULL) && (G_UNLIKELY (g_strcmp0 (wanted_card, tmp_card_name) == 0))) {
 		  Inst->card = iter->data;
+		  Inst->card_name = g_strdup (wanted_card);
 		  break;
 		}
 
 		// If the fallback card label is set, we save the fallback card in case the wanted one isn't found
-		if ((preferred_fallback != NULL) && (G_UNLIKELY (g_utf8_collate (preferred_fallback, tmp_card_name) == 0))) {
+		if ((preferred_fallback != NULL) && (G_UNLIKELY (g_strcmp0 (preferred_fallback, tmp_card_name) == 0))) {
 		  fallback_card = iter->data;
 		}
 		
@@ -199,7 +201,7 @@ xvd_get_card_from_mixer(XvdInstance *Inst,
 	
 	// We now check if the card was set or if we should use fallback / first instead
 	if (NULL != Inst->card) {
-		g_debug ("The card %s was found on the card and set as the current card.\n", wanted_card);
+		g_debug ("The card %s was found and set as the current card.\n", wanted_card);
 	}
 	else if (NULL != fallback_card) {
 		g_debug ("The wanted card could not be found, using the fallback one instead.\n");
@@ -219,14 +221,12 @@ xvd_get_card_from_mixer(XvdInstance *Inst,
 	}
 	else {
 		g_debug ("Error: there is no sound card on this machine.\n");
-		Inst->xvd_init_error = TRUE;
 		return;
 	}
 	
 	g_free (first_name);
 
 	#ifdef HAVE_LIBNOTIFY
-	gst_object_unref (Inst->bus);
 	gst_element_set_bus (Inst->card, Inst->bus);
 	#endif
 }
@@ -250,7 +250,7 @@ xvd_get_track_from_mixer(XvdInstance *Inst,
 			g_object_get (GST_MIXER_TRACK (iter->data), "label", &tmp_label, NULL);
 			
 			// If the wanted track is requested and found
-			if ((wanted_track != NULL) && (g_utf8_collate (tmp_label, wanted_track) == 0)) {
+			if ((wanted_track != NULL) && (g_strcmp0 (tmp_label, wanted_track) == 0)) {
 				Inst->track_label = g_strdup (tmp_label);
 				Inst->track = iter->data;
 				g_free (tmp_label);
@@ -258,7 +258,7 @@ xvd_get_track_from_mixer(XvdInstance *Inst,
 			}
 			
 			// If the fallback track label is set, we save the fallback track in case the wanted one isn't found
-			if ((preferred_fallback != NULL) && (g_utf8_collate (tmp_label, preferred_fallback) == 0)) {
+			if ((preferred_fallback != NULL) && (g_strcmp0 (tmp_label, preferred_fallback) == 0)) {
 				fallback_track = iter->data;
 			}
 			
@@ -279,7 +279,6 @@ xvd_get_track_from_mixer(XvdInstance *Inst,
 	}
 	else {
 		g_debug ("Error: there is no sound card to search tracks from.\n");
-		Inst->xvd_init_error = TRUE;
 		return;
 	}
 	
@@ -303,17 +302,11 @@ xvd_get_track_from_mixer(XvdInstance *Inst,
 	}
 	else {
 		g_debug ("Error: the current sound card doesn't have any track.\n");
-		Inst->xvd_init_error = TRUE;
 		return;
 	}
 	
 	g_free (first_label);
 	g_free (master_label);
-	
-	if (Inst->xvd_init_error) {
-		Inst->xvd_init_error = FALSE;
-		g_debug ("The daemon apparently recovered from a card/track initialisation error.\n");
-	}
 }
 
 static void 
@@ -340,9 +333,12 @@ xvd_clean_cards(XvdInstance *Inst)
 void
 xvd_clean_mixer_bus(XvdInstance *Inst)
 {
+	int i, refc = GST_OBJECT_REFCOUNT(Inst->bus);
 	gst_bus_remove_signal_watch (Inst->bus);
 	g_signal_handler_disconnect (Inst->bus, Inst->bus_id);
-	gst_object_unref (Inst->bus);
+	
+	for (i=0; i < refc; i++)
+		gst_object_unref (Inst->bus);
 }
 #endif
 
@@ -371,6 +367,19 @@ xvd_calculate_avg_volume(XvdInstance *Inst,
 	}
 }
 
+static gint
+_nearest_int (gdouble val)
+{
+	gdouble diff = (val - (gint) val);
+
+	if ((-0.5 < diff) && (diff < 0.5))
+		return (gint) val;
+	else if (diff > 0)
+		return (gint) val + 1;
+	else
+		return (gint) val - 1;
+}
+
 gboolean 
 xvd_mixer_change_volume(XvdInstance *Inst, 
 						gint step)
@@ -382,7 +391,7 @@ xvd_mixer_change_volume(XvdInstance *Inst,
 		gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
 		
 		for (i=0; i<Inst->track->num_channels; i++) {
-			volumes[i] += (gint)( ((gdouble)step / 100) * (Inst->track->max_volume - Inst->track->min_volume));
+			volumes[i] += _nearest_int ((gdouble)(step * (Inst->track->max_volume - Inst->track->min_volume)) / 100.0);
 			
 			if (volumes[i] > Inst->track->max_volume)
 				volumes[i] = Inst->track->max_volume;
@@ -390,7 +399,6 @@ xvd_mixer_change_volume(XvdInstance *Inst,
 			if (volumes[i] < Inst->track->min_volume)
 				volumes[i] = Inst->track->min_volume;
 		}
-		
 		xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
 		
 		gst_mixer_set_volume (GST_MIXER (Inst->card), Inst->track, volumes);
