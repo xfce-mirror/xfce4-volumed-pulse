@@ -39,6 +39,9 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/XF86keysym.h>
+#ifdef HAVE_LIBNOTIFY
+#include <libnotify/notification.h>
+#endif
 
 typedef struct {
 	/* Sound card being used and list of cards */
@@ -71,13 +74,24 @@ typedef struct {
 	xcb_connection_t 	*conn;
 	xcb_window_t 		root_win;
 	xcb_key_symbols_t 	*kss;
+	#ifndef LEGACY_XCBKEYSYMS
 	xcb_keycode_t 		*keyRaise,
 						*keyLower,
 						*keyMute;
+	#else
+	xcb_keycode_t 		keyRaise,
+						keyLower,
+						keyMute;
+	#endif
+    
+    #ifdef HAVE_LIBNOTIFY
+    /* Libnotify vars */
+	gboolean			sync_notifications;
+	NotifyNotification* notification;
+	#endif
 
 	/* Other Xvd vars */
 	GMainLoop			*loop;
-	gboolean			notifyosd;
 } XvdInstance;
 
 #endif

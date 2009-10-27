@@ -27,6 +27,8 @@
 #include "xvd_notify.h"
 #endif
 
+#ifndef LEGACY_XCBKEYSYMS
+// This is only needed when the keycodes are a list and not a struct
 static gboolean
 _xvd_keys_is_symbol(xcb_keycode_t elem,
 					xcb_keycode_t *list)
@@ -44,6 +46,7 @@ _xvd_keys_is_symbol(xcb_keycode_t elem,
 	
 	return belongs;
 }
+#endif
 
 static gboolean 
 _xvd_keys_handle_events(GIOChannel *source, 
@@ -61,7 +64,11 @@ _xvd_keys_handle_events(GIOChannel *source,
 				case XCB_KEY_PRESS:
 					kpe = (xcb_key_press_event_t *)ev;
 					
+					#ifndef LEGACY_XCBKEYSYMS
 					if (_xvd_keys_is_symbol(kpe->detail, Inst->keyRaise)) {
+                    #else
+					if (kpe->detail == Inst->keyRaise) {
+                    #endif
 						if (xvd_mixer_change_volume (Inst, Inst->vol_step)) {
 							#ifdef HAVE_LIBNOTIFY
 /*							if (!Inst->muted) {*/
@@ -74,7 +81,11 @@ _xvd_keys_handle_events(GIOChannel *source,
 						}
 					}
 
+					#ifndef LEGACY_XCBKEYSYMS
 					else if (_xvd_keys_is_symbol(kpe->detail, Inst->keyLower)) {
+                    #else
+					else if (kpe->detail == Inst->keyLower) {
+                    #endif
 						if (xvd_mixer_change_volume (Inst, (Inst->vol_step * -1))) {
 							#ifdef HAVE_LIBNOTIFY
 /*							if (!Inst->muted) {*/
@@ -87,7 +98,11 @@ _xvd_keys_handle_events(GIOChannel *source,
 						}
 					}
 
+					#ifndef LEGACY_XCBKEYSYMS
 					else if (_xvd_keys_is_symbol(kpe->detail, Inst->keyMute)) {
+                    #else
+					else if (kpe->detail == Inst->keyMute) {
+                    #endif
 						if (xvd_mixer_toggle_mute (Inst)) {
 							#ifdef HAVE_LIBNOTIFY
 							if (Inst->muted)
@@ -155,6 +170,7 @@ xvd_keys_init(XvdInstance *Inst)
 	Inst->kss = xcb_key_symbols_alloc (Inst->conn);
 
 	/* Grab the XF86AudioRaiseVolume key */
+	#ifndef LEGACY_XCBKEYSYMS
 	Inst->keyRaise = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioRaiseVolume);
 	i = 0;
 	
@@ -214,6 +230,55 @@ xvd_keys_init(XvdInstance *Inst)
 		}
 		i++;
 	}
+	#else
+	Inst->keyRaise = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioRaiseVolume);
+	
+	cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+									mod, Inst->keyRaise, 
+									XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+	error = xcb_request_check (Inst->conn, cookie);
+	if (error) {
+		fprintf (stderr, "XCB: Unable to bind RaiseVolume keycode=%d mod=0x%04x: %d\n",
+		Inst->keyRaise, mod, error->error_code);
+	}
+	else {
+		g_print ("XCB: RaiseVolume ok, keycode=%d mod=0x%04x\n",
+		Inst->keyRaise, mod);
+	}
+
+	/* Grab the XF86AudioLowerVolume key */
+	Inst->keyLower = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioLowerVolume);
+	
+	cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+									mod, Inst->keyLower, 
+									XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+	error = xcb_request_check (Inst->conn, cookie);
+	if (error) {
+		fprintf (stderr, "XCB: Unable to bind LowerVolume keycode=%d mod=0x%04x: %d\n",
+		Inst->keyLower, mod, error->error_code);
+	}
+	else {
+		g_print ("XCB: LowerVolume ok, keycode=%d mod=0x%04x\n",
+		Inst->keyLower, mod);
+	}
+
+	
+	/* Grab the XF86AudioMute key */
+	Inst->keyMute = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioMute);
+	
+	cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+									mod, Inst->keyMute, 
+									XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+	error = xcb_request_check (Inst->conn, cookie);
+	if (error) {
+		fprintf (stderr, "XCB: Unable to bind Mute keycode=%d mod=0x%04x: %d\n",
+		Inst->keyMute, mod, error->error_code);
+	}
+	else {
+		g_print ("XCB: Mute ok, keycode=%d mod=0x%04x\n",
+		Inst->keyMute, mod);
+	}
+	#endif
 
 	GIOChannel *channel = g_io_channel_unix_new (xcb_get_file_descriptor (Inst->conn));
 	g_io_add_watch (channel, G_IO_IN|G_IO_HUP, _xvd_keys_handle_events, Inst);
@@ -222,9 +287,11 @@ xvd_keys_init(XvdInstance *Inst)
 void 
 xvd_keys_release (XvdInstance *Inst)
 {
+	#ifndef LEGACY_XCBKEYSYMS
 	g_free (Inst->keyRaise);
 	g_free (Inst->keyLower);
 	g_free (Inst->keyMute);
+	#endif
 	if (Inst->kss)
 		xcb_key_symbols_free (Inst->kss);
 	if (Inst->conn)

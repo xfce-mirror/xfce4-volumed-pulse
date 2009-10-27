@@ -10,7 +10,7 @@ xfce4_volumed_SOURCES = \
 	xvd_notify.c		\
 	xvd_notify.h		\
 	xvd_xfconf.c		\
-	xvd_xfconf.h		
+	xvd_xfconf.h
 
 INCLUDES = 						\
 	@GLIB_CFLAGS@				\
@@ -18,7 +18,7 @@ INCLUDES = 						\
 	@GSTREAMER_CFLAGS@			\
 	@GSTREAMER_AUDIO_CFLAGS@	\
 	@XCB_KEYSYMS_CFLAGS@		\
-	@LIBNOTIFY_CFLAGS@			
+	@LIBNOTIFY_CFLAGS@
 
 xfce4_volumed_LDADD = 		\
 	@GLIB_LIBS@				\
@@ -26,4 +26,8 @@ xfce4_volumed_LDADD = 		\
 	@GSTREAMER_LIBS@		\
 	@GSTREAMER_AUDIO_LIBS@	\
 	@XCB_KEYSYMS_LIBS@		\
-	@LIBNOTIFY_LIBS@		
+	@LIBNOTIFY_LIBS@
+	
+if LEGACY_XCBKEYSYMS
+xfce4_volumed_CFLAGS = -DLEGACY_XCBKEYSYMS
+endif

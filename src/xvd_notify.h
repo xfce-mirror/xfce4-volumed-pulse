@@ -53,6 +53,6 @@ xvd_notify_init(XvdInstance *Inst,
 				const gchar *appname);
 
 void 
-xvd_notify_uninit();
+xvd_notify_uninit(XvdInstance *Inst);
 #endif
 #endif

@@ -29,40 +29,38 @@ xvd_notify_notification(XvdInstance *Inst,
 						gchar* icon, 
 						gint value)
 {
-	if (Inst->notifyosd) {
-		NotifyNotification* notification	= NULL;
-		gchar* title						= NULL;
-		
-		if ((icon != NULL) && (g_strcmp0(icon, "notification-audio-volume-muted") == 0)) {
-			// TRANSLATORS: this is the body of the ATK interface of the volume notifications. Just before this, there is the 'Volume' word (as a notification title). If it would look too weird in your locale, translate this string as 'The volume is muted' instead.
-			title = g_strdup ("Volume is muted");
-		}
-		else {
-			// TRANSLATORS: %d is the volume displayed as a percent, and %c is replaced by '%'. If it doesn't fit in your locale feel free to file a bug.
-			title = g_strdup_printf ("Volume is at %d%c", value, '%');
-		}
-		
-		notification = notify_notification_new (
-					title,
-					NULL,
-					icon,
-					NULL);
-		
-		g_free (title);
-		
-		notify_notification_set_hint_int32 (notification,
+	gchar* title						= NULL;
+
+	if ((icon != NULL) && (g_strcmp0(icon, "notification-audio-volume-muted") == 0)) {
+		// TRANSLATORS: this is the body of the ATK interface of the volume notifications. Just before this, there is the 'Volume' word (as a notification title). If it would look too weird in your locale, translate this string as 'The volume is muted' instead.
+		title = g_strdup ("Volume is muted");
+	}
+	else {
+		// TRANSLATORS: %d is the volume displayed as a percent, and %c is replaced by '%'. If it doesn't fit in your locale feel free to file a bug.
+		title = g_strdup_printf ("Volume is at %d%c", value, '%');
+	}
+	
+	notify_notification_update (Inst->notification,
+				title,
+				NULL,
+				icon);
+	
+	g_free (title);
+	
+	if (Inst->sync_notifications) {
+		notify_notification_set_hint_int32 (Inst->notification,
 							"value",
 							value);
-		notify_notification_set_hint_string (notification,
+		notify_notification_set_hint_string (Inst->notification,
 							 "x-canonical-private-synchronous",
 							 "");
-		Inst->error = NULL;
-		if (!notify_notification_show (notification, &Inst->error))
-		{
-			g_warning ("Error while sending notification : %s\n", Inst->error->message);
-			g_error_free (Inst->error);
-		}
-		g_object_unref (G_OBJECT (notification));
+	}
+	
+	Inst->error = NULL;
+	if (!notify_notification_show (Inst->notification, &Inst->error))
+	{
+		g_warning ("Error while sending notification : %s\n", Inst->error->message);
+		g_error_free (Inst->error);
 	}
 }
 
@@ -82,20 +80,24 @@ xvd_notify_volume_notification(XvdInstance *Inst)
 void
 xvd_notify_overshoot_notification(XvdInstance *Inst)
 {
-	xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-high", 101);
+	xvd_notify_notification (Inst, 
+	    (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-high",
+	    (Inst->sync_notifications) ? 101 : 100);
 }
 
 void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
-	xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-off", -1);
+	xvd_notify_notification (Inst, 
+	    (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-off",
+	    (Inst->sync_notifications) ? -1 : 0);
 }
 
 void 
 xvd_notify_init(XvdInstance *Inst, 
 				const gchar *appname)
 {
-	Inst->notifyosd = TRUE;
+	Inst->sync_notifications = TRUE;
 	notify_init (appname);
 	
 	GList *caps_list = notify_get_server_caps ();
@@ -106,19 +108,27 @@ xvd_notify_init(XvdInstance *Inst,
 
 		node = g_list_find_custom (caps_list, LAYOUT_ICON_ONLY, (GCompareFunc) g_strcmp0);
 		if (!node)
-			Inst->notifyosd = FALSE;
+			Inst->sync_notifications = FALSE;
 		
 		node = g_list_find_custom (caps_list, SYNCHRONOUS, (GCompareFunc) g_strcmp0);
 		if (!node)
-			Inst->notifyosd = FALSE;
+			Inst->sync_notifications = FALSE;
 		
 		g_list_free (caps_list);
 	}
+	
+	Inst->notification = notify_notification_new (
+					"Xfce4-Volumed",
+					NULL,
+					NULL,
+					NULL);
 }
 
 void 
-xvd_notify_uninit ()
+xvd_notify_uninit (XvdInstance *Inst)
 {
+	g_object_unref (G_OBJECT (Inst->notification));
+	Inst->notification = NULL;
 	notify_uninit ();
 }
 #endif

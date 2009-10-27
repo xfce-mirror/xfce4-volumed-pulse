@@ -72,7 +72,7 @@ xvd_shutdown()
 {
 	#ifdef HAVE_LIBNOTIFY
 	xvd_clean_mixer_bus (Inst);
-	xvd_notify_uninit ();
+	xvd_notify_uninit (Inst);
 	#endif
 	
 	xvd_clean_card_name (Inst);
@@ -104,11 +104,15 @@ xvd_instance_init(XvdInstance *i)
 	i->current_vol = 0;
 	i->muted = FALSE;
 	i->conn = NULL;
+	#ifndef LEGACY_XCBKEYSYMS
+	// In legacy mode xcb keycodes are not pointers to lists but structs
 	i->keyRaise = NULL;
 	i->keyLower = NULL;
 	i->keyMute = NULL;
+	#endif
 	i->kss = NULL;
-	i->notifyosd = FALSE;
+	i->sync_notifications = FALSE;
+    i->notification	= NULL;
 }
 
 gint 

@@ -1,3 +1,8 @@
+2009-10-27  Steve Dodier <sidnioulz@gmail.com>
+
+	* Support for asynchronous libnotify daemons
+	* Move support for legacy libxcb-keysyms to the main branch with a build toggle
+	
 2009-09-04  Steve Dodier <sidnioulz@gmail.com>
 
 	* Volume initialisation now includes mute check
