@@ -111,8 +111,10 @@ xvd_instance_init(XvdInstance *i)
 	i->keyMute = NULL;
 	#endif
 	i->kss = NULL;
-	i->sync_notifications = FALSE;
-    i->notification	= NULL;
+	#ifdef HAVE_LIBNOTIFY
+ 	i->sync_notifications = FALSE;
+	i->notification	= NULL;
+	#endif
 }
 
 gint 
