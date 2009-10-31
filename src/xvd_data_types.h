@@ -86,7 +86,7 @@ typedef struct {
     
     #ifdef HAVE_LIBNOTIFY
     /* Libnotify vars */
-	gboolean			sync_notifications;
+	gboolean			gauge_notifications;
 	NotifyNotification* notification;
 	#endif
 

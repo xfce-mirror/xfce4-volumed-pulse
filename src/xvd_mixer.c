@@ -105,7 +105,7 @@ _xvd_mixer_bus_message (GstBus *bus, GstMessage *message,
 			return;
 #ifdef HAVE_LIBNOTIFY
 		if (Inst->muted)
-			xvd_notify_notification (Inst, "notification-audio-volume-muted", 0);
+			xvd_notify_notification (Inst, "audio-volume-muted", 0);
 		else {
 			xvd_mixer_init_volume (Inst);
 			xvd_notify_volume_notification (Inst);

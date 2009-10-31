@@ -69,6 +69,9 @@ _xvd_keys_handle_events(GIOChannel *source,
                     #else
 					if (kpe->detail == Inst->keyRaise) {
                     #endif
+					    #ifndef NDEBUG
+                		g_debug ("The RaiseVolume key was pressed.\n");
+                		#endif
 						if (xvd_mixer_change_volume (Inst, Inst->vol_step)) {
 							#ifdef HAVE_LIBNOTIFY
 /*							if (!Inst->muted) {*/
@@ -86,6 +89,9 @@ _xvd_keys_handle_events(GIOChannel *source,
                     #else
 					else if (kpe->detail == Inst->keyLower) {
                     #endif
+					    #ifndef NDEBUG
+                		g_debug ("The LowerVolume key was pressed.\n");
+                		#endif
 						if (xvd_mixer_change_volume (Inst, (Inst->vol_step * -1))) {
 							#ifdef HAVE_LIBNOTIFY
 /*							if (!Inst->muted) {*/
@@ -103,10 +109,13 @@ _xvd_keys_handle_events(GIOChannel *source,
                     #else
 					else if (kpe->detail == Inst->keyMute) {
                     #endif
+					    #ifndef NDEBUG
+                		g_debug ("The Mute key was pressed.\n");
+                		#endif
 						if (xvd_mixer_toggle_mute (Inst)) {
 							#ifdef HAVE_LIBNOTIFY
 							if (Inst->muted)
-								xvd_notify_notification (Inst, "notification-audio-volume-muted", 0);
+								xvd_notify_notification (Inst, "audio-volume-muted", 0);
 							else {
 								xvd_mixer_init_volume (Inst);
 								xvd_notify_volume_notification (Inst);

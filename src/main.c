@@ -112,7 +112,7 @@ xvd_instance_init(XvdInstance *i)
 	#endif
 	i->kss = NULL;
 	#ifdef HAVE_LIBNOTIFY
- 	i->sync_notifications = FALSE;
+ 	i->gauge_notifications = FALSE;
 	i->notification	= NULL;
 	#endif
 }

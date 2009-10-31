@@ -31,8 +31,8 @@ xvd_notify_notification(XvdInstance *Inst,
 {
 	gchar* title						= NULL;
 
-	if ((icon != NULL) && (g_strcmp0(icon, "notification-audio-volume-muted") == 0)) {
-		// TRANSLATORS: this is the body of the ATK interface of the volume notifications. Just before this, there is the 'Volume' word (as a notification title). If it would look too weird in your locale, translate this string as 'The volume is muted' instead.
+	if ((icon != NULL) && (g_strcmp0(icon, "audio-volume-muted") == 0)) {
+		// TRANSLATORS: this is the body of the ATK interface of the volume notifications. This is the case when volume is muted
 		title = g_strdup ("Volume is muted");
 	}
 	else {
@@ -47,7 +47,7 @@ xvd_notify_notification(XvdInstance *Inst,
 	
 	g_free (title);
 	
-	if (Inst->sync_notifications) {
+	if (Inst->gauge_notifications) {
 		notify_notification_set_hint_int32 (Inst->notification,
 							"value",
 							value);
@@ -68,36 +68,36 @@ void
 xvd_notify_volume_notification(XvdInstance *Inst)
 {
 	if (Inst->current_vol == 0)
-		xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-off", 0);
+		xvd_notify_notification (Inst, "audio-volume-muted", 0);
 	else if (Inst->current_vol < 34)
-		xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-low", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-low", Inst->current_vol);
 	else if (Inst->current_vol < 67)
-		xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-medium", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-medium", Inst->current_vol);
 	else
-		xvd_notify_notification (Inst, (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-high", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-high", Inst->current_vol);
 }
 
 void
 xvd_notify_overshoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst, 
-	    (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-high",
-	    (Inst->sync_notifications) ? 101 : 100);
+	    (Inst->muted) ? "audio-volume-muted" : "audio-volume-high",
+	    (Inst->gauge_notifications) ? 101 : 100);
 }
 
 void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst, 
-	    (Inst->muted) ? "notification-audio-volume-muted" : "notification-audio-volume-off",
-	    (Inst->sync_notifications) ? -1 : 0);
+	    "audio-volume-muted",
+	    (Inst->gauge_notifications) ? -1 : 0);
 }
 
 void 
 xvd_notify_init(XvdInstance *Inst, 
 				const gchar *appname)
 {
-	Inst->sync_notifications = TRUE;
+	Inst->gauge_notifications = TRUE;
 	notify_init (appname);
 	
 	GList *caps_list = notify_get_server_caps ();
@@ -108,11 +108,11 @@ xvd_notify_init(XvdInstance *Inst,
 
 		node = g_list_find_custom (caps_list, LAYOUT_ICON_ONLY, (GCompareFunc) g_strcmp0);
 		if (!node)
-			Inst->sync_notifications = FALSE;
+			Inst->gauge_notifications = FALSE;
 		
-		node = g_list_find_custom (caps_list, SYNCHRONOUS, (GCompareFunc) g_strcmp0);
-		if (!node)
-			Inst->sync_notifications = FALSE;
+/*		node = g_list_find_custom (caps_list, SYNCHRONOUS, (GCompareFunc) g_strcmp0);*/
+/*		if (!node)*/
+/*			Inst->gauge_notifications = FALSE;*/
 		
 		g_list_free (caps_list);
 	}

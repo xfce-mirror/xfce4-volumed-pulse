@@ -1,3 +1,13 @@
+2009-10-31  Steve Dodier <sidnioulz@gmail.com>
+
+	* Add debug messages when a key is pressed
+	* Turn icon names into XDG-compliant names
+	* Remove x-canonical-private-synchronous from needed caps for gauge-based notifications
+
+2009-10-28  Steve Dodier <sidnioulz@gmail.com>
+
+	* Fix a build error with --disable-libnotify, patch from Ṣalāḥ ad-Dīn Yūsuf ibn Ayyūb
+
 2009-10-27  Steve Dodier <sidnioulz@gmail.com>
 
 	* Support for asynchronous libnotify daemons
