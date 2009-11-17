@@ -1,6 +1,6 @@
-Thanks to Jannis Pohlmann for his extraordinary help. Most of this daemon is
-based on his code.
+Thanks to Jannis Pohlmann for his extraordinary help. This daemon has mostly
+been designed by him.
 
-Thanks to Mirco Muëller, for the nice notify-osd example files.
+Thanks to Lionel Le Folgoc for the packaging and autotools help.
 
-Thanks to Lionel Le Folgoc for the packaging help.
+Thanks to the XFCE developers for their advice and feedback.

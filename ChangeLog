@@ -1,3 +1,12 @@
+2009-11-05  Steve Dodier <sidnioulz@gmail.com>
+
+	* Use xfce4-dev-tools
+	* Now show the actual current volume with a mute icon when muting the volume
+	* Make sure the desktop file uses the correct prefix for its Exec value
+	* Fix a bug with sound cards without device names
+	* Use the low volume icon when volume is 0%, instead of the muted one
+	* Prevent a crash if there is no XF86Volume key on the system
+
 2009-10-31  Steve Dodier <sidnioulz@gmail.com>
 
 	* Add debug messages when a key is pressed

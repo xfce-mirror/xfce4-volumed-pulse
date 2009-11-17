@@ -115,7 +115,7 @@ _xvd_keys_handle_events(GIOChannel *source,
 						if (xvd_mixer_toggle_mute (Inst)) {
 							#ifdef HAVE_LIBNOTIFY
 							if (Inst->muted)
-								xvd_notify_notification (Inst, "audio-volume-muted", 0);
+								xvd_notify_notification (Inst, "audio-volume-muted", Inst->current_vol);
 							else {
 								xvd_mixer_init_volume (Inst);
 								xvd_notify_volume_notification (Inst);
@@ -181,64 +181,80 @@ xvd_keys_init(XvdInstance *Inst)
 	/* Grab the XF86AudioRaiseVolume key */
 	#ifndef LEGACY_XCBKEYSYMS
 	Inst->keyRaise = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioRaiseVolume);
-	i = 0;
 	
-	while (Inst->keyRaise[i] != XCB_NO_SYMBOL) {
-		cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
-										mod, Inst->keyRaise[i], 
-										XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-		error = xcb_request_check (Inst->conn, cookie);
-		if (error) {
-			fprintf (stderr, "XCB: Unable to bind RaiseVolume keycode=%d mod=0x%04x: %d\n",
-			Inst->keyRaise[i], mod, error->error_code);
+	if (Inst->keyRaise == NULL) {
+		g_debug ("There is no X86AudioRaiseVolume key on your system.\n");
+	}
+	else {
+		i = 0;
+		while (Inst->keyRaise[i] != XCB_NO_SYMBOL) {
+			cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+											mod, Inst->keyRaise[i], 
+											XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+			error = xcb_request_check (Inst->conn, cookie);
+			if (error) {
+				fprintf (stderr, "XCB: Unable to bind RaiseVolume keycode=%d mod=0x%04x: %d\n",
+				Inst->keyRaise[i], mod, error->error_code);
+			}
+			else {
+				g_print ("XCB: RaiseVolume ok, keycode=%d mod=0x%04x\n",
+				Inst->keyRaise[i], mod);
+			}
+			i++;
 		}
-		else {
-			g_print ("XCB: RaiseVolume ok, keycode=%d mod=0x%04x\n",
-			Inst->keyRaise[i], mod);
-		}
-		i++;
 	}
 
 	/* Grab the XF86AudioLowerVolume key */
 	Inst->keyLower = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioLowerVolume);
-	i = 0;
 	
-	while (Inst->keyLower[i] != XCB_NO_SYMBOL) {
-		cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
-										mod, Inst->keyLower[i], 
-										XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-		error = xcb_request_check (Inst->conn, cookie);
-		if (error) {
-			fprintf (stderr, "XCB: Unable to bind LowerVolume keycode=%d mod=0x%04x: %d\n",
-			Inst->keyLower[i], mod, error->error_code);
-		}
-		else {
-			g_print ("XCB: LowerVolume ok, keycode=%d mod=0x%04x\n",
-			Inst->keyLower[i], mod);
-		}
-		i++;
+	if (Inst->keyLower == NULL) {
+		g_debug ("There is no X86AudioLowerVolume key on your system.\n");
 	}
-
+	else {
+		i = 0;
+		while (Inst->keyLower[i] != XCB_NO_SYMBOL) {
+			cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+											mod, Inst->keyLower[i], 
+											XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+			error = xcb_request_check (Inst->conn, cookie);
+			if (error) {
+				fprintf (stderr, "XCB: Unable to bind LowerVolume keycode=%d mod=0x%04x: %d\n",
+				Inst->keyLower[i], mod, error->error_code);
+			}
+			else {
+				g_print ("XCB: LowerVolume ok, keycode=%d mod=0x%04x\n",
+				Inst->keyLower[i], mod);
+			}
+			i++;
+		}
+	}
 	
 	/* Grab the XF86AudioMute key */
 	Inst->keyMute = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioMute);
-	i = 0;
-	
-	while (Inst->keyMute[i] != XCB_NO_SYMBOL) {
-		cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
-										mod, Inst->keyMute[i], 
-										XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-		error = xcb_request_check (Inst->conn, cookie);
-		if (error) {
-			fprintf (stderr, "XCB: Unable to bind Mute keycode=%d mod=0x%04x: %d\n",
-			Inst->keyMute[i], mod, error->error_code);
-		}
-		else {
-			g_print ("XCB: Mute ok, keycode=%d mod=0x%04x\n",
-			Inst->keyMute[i], mod);
-		}
-		i++;
+
+	if (Inst->keyMute == NULL) {
+		g_debug ("There is no X86AudioMute key on your system.\n");
 	}
+	else {	
+		i = 0;
+		while (Inst->keyMute[i] != XCB_NO_SYMBOL) {
+			cookie = xcb_grab_key_checked (Inst->conn, TRUE, Inst->root_win, 
+											mod, Inst->keyMute[i], 
+											XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+			error = xcb_request_check (Inst->conn, cookie);
+			if (error) {
+				fprintf (stderr, "XCB: Unable to bind Mute keycode=%d mod=0x%04x: %d\n",
+				Inst->keyMute[i], mod, error->error_code);
+			}
+			else {
+				g_print ("XCB: Mute ok, keycode=%d mod=0x%04x\n",
+				Inst->keyMute[i], mod);
+			}
+			i++;
+		}
+	}
+	
+	
 	#else
 	Inst->keyRaise = xcb_key_symbols_get_keycode (Inst->kss, XF86XK_AudioRaiseVolume);
 	
