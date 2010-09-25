@@ -103,14 +103,6 @@ xvd_instance_init(XvdInstance *i)
 	i->loop = NULL;
 	i->current_vol = 0;
 	i->muted = FALSE;
-	i->conn = NULL;
-	#ifndef LEGACY_XCBKEYSYMS
-	// In legacy mode xcb keycodes are not pointers to lists but structs
-	i->keyRaise = NULL;
-	i->keyLower = NULL;
-	i->keyMute = NULL;
-	#endif
-	i->kss = NULL;
 	#ifdef HAVE_LIBNOTIFY
  	i->gauge_notifications = FALSE;
 	i->notification	= NULL;
@@ -126,16 +118,18 @@ main(gint argc, gchar **argv)
 	#ifdef NDEBUG
 	xvd_daemonize();
 	#endif
+  
+  gtk_init(&argc, &argv);
 
 	/* Gstreamer init */
 	gst_init (NULL,NULL);
 
-	/* Xcb init */
+	/* Grab the keys */
 	xvd_keys_init (Inst);
 
 	/* Xfconf init */
 	xvd_xfconf_init (Inst);
-	
+  
 	/* Get card/track from xfconf */
 	if (!xvd_xfconf_get_card (Inst)) {
 		g_debug ("Main: There seems to be no active card defined in xfconf.\n");

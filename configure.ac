@@ -1,4 +1,4 @@
-AC_INIT([xfce4-volumed], [0.1.8], [http://bugs.launchpad.net/xfce4-volumed])
+AC_INIT([xfce4-volumed], [0.1.9], [http://bugs.launchpad.net/xfce4-volumed])
 AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
 
 AC_CONFIG_SRCDIR([src/main.c])
@@ -23,14 +23,9 @@ PKG_CHECK_MODULES(GSTREAMER_AUDIO, [gstreamer-audio-0.10])
 AC_SUBST(GSTREAMER_AUDIO_CFLAGS)
 AC_SUBST(GSTREAMER_AUDIO_LIBS)
 
-PKG_CHECK_MODULES(XCB_KEYSYMS, xcb-keysyms >= 0.3.5, [],
-[
-    PKG_CHECK_MODULES(XCB_KEYSYMS, [xcb-keysyms])
-    LEGACY_XCB_KEYSYMS=1
-])
-AC_SUBST(XCB_KEYSYMS_CFLAGS)
-AC_SUBST(XCB_KEYSYMS_LIBS)
-AM_CONDITIONAL(LEGACY_XCBKEYSYMS, [test "$LEGACY_XCB_KEYSYMS" = "1"])
+PKG_CHECK_MODULES(LIBKEYBINDER, [keybinder])
+AC_SUBST(LIBKEYBINDER_CFLAGS)
+AC_SUBST(LIBKEYBINDER_LIBS)
 
 AC_ARG_WITH(libnotify,
    AS_HELP_STRING([--with-libnotify], [enable notifications (default=autodetect)]),
@@ -77,9 +72,6 @@ echo "----------------------------------------"
 echo "Xfce4-Volumed"
 echo "	Installing in : ${prefix}"
 echo "	Using LibNotify : ${with_libnotify}"
-if test "$LEGACY_XCB_KEYSYMS" = "1"; then
-    echo "	Legacy XCB Keysyms : yes"
-fi
 echo "	Compiler : ${CC}"
 echo "	Compiler flags : ${CFLAGS}"
 echo ""

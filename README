@@ -6,7 +6,12 @@ Please read INSTALL
 
 https://bugs.launchpad.net/xfce4-volumed
 
-== Known Gstreamer prooblems
+== Known Gstreamer problems
  * No sound card detected: if this happens you're probably missing a GStreamer
    plugin for your sound system. If you're using ALSA then installing 
    gstreamer0.10-alsa should fix it.
+
+== Known installation problems
+ * Your system may not have libkeybinder packaged, or may have it without the
+   proper pkg-config file. You can find the libkeybinder source at
+   http://github.com/engla/keybinder/tree/master/libkeybinder/

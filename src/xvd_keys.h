@@ -25,11 +25,6 @@
 
 #include "xvd_data_types.h"
 
-struct xvd_binding_t {
-  xcb_keycode_t code;
-  uint16_t mod;
-};
-
 void 
 xvd_keys_init(XvdInstance *Inst);
 

@@ -20,6 +20,10 @@
 #ifndef _XVD_DATA_TYPES_H
 #define _XVD_DATA_TYPES_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
 #define XFCONF_MIXER_ACTIVECARD "/active-card"
 #define XFCONF_MIXER_ACTIVECARD_LEGACY "/sound-card"
@@ -36,9 +40,7 @@
 
 #include <gst/audio/mixerutils.h>
 
-#include <xcb/xcb.h>
-#include <xcb/xcb_keysyms.h>
-#include <X11/XF86keysym.h>
+#include <keybinder.h>
 #ifdef HAVE_LIBNOTIFY
 #include <libnotify/notification.h>
 #endif
@@ -69,22 +71,8 @@ typedef struct {
 	guint				current_vol;
 	guint				vol_step;
 	gboolean        	muted;
-	
-	/* Xcb vars */
-	xcb_connection_t 	*conn;
-	xcb_window_t 		root_win;
-	xcb_key_symbols_t 	*kss;
-	#ifndef LEGACY_XCBKEYSYMS
-	xcb_keycode_t 		*keyRaise,
-						*keyLower,
-						*keyMute;
-	#else
-	xcb_keycode_t 		keyRaise,
-						keyLower,
-						keyMute;
-	#endif
-    
-    #ifdef HAVE_LIBNOTIFY
+  
+  #ifdef HAVE_LIBNOTIFY
     /* Libnotify vars */
 	gboolean			gauge_notifications;
 	NotifyNotification* notification;
