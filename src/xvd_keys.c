@@ -86,14 +86,114 @@ xvd_keys_init(XvdInstance *Inst)
     keybinder_init();
 
     keybinder_bind ("XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Alt>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Shift>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Alt><Shift>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Shift><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Shift><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler, Inst);
+    
+    
     keybinder_bind ("XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Alt>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Shift>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Alt><Shift>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Alt><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Shift><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Shift><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler, Inst);
+    
+    
     keybinder_bind ("XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Alt>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Shift>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Alt><Shift>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Alt><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Shift><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Alt><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Shift><Alt><Super>XF86AudioMute", xvd_mute_handler, Inst);
+    keybinder_bind ("<Ctrl><Shift><Alt><Super>XF86AudioMute", xvd_mute_handler, Inst);
 }
 
 void
 xvd_keys_release (XvdInstance *Inst)
 {
+
     keybinder_unbind ("XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Alt>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Shift>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Shift>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Alt>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Alt><Shift>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Shift><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Shift><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Shift><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt><Super>XF86AudioRaiseVolume", xvd_raise_handler);
+    
+    
     keybinder_unbind ("XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Alt>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Shift>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Shift>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Alt>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Alt><Shift>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Alt><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Shift><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Shift><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Shift><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt><Super>XF86AudioLowerVolume", xvd_lower_handler);
+    
+    
     keybinder_unbind ("XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Alt>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Shift>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Shift>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Alt>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Alt><Shift>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Alt><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Shift><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Shift><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Alt><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Shift><Alt><Super>XF86AudioMute", xvd_mute_handler);
+    keybinder_unbind ("<Ctrl><Shift><Alt><Super>XF86AudioMute", xvd_mute_handler);
+
 }
