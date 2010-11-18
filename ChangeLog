@@ -1,4 +1,7 @@
 2010-11-18  Steve Dodier <sidnioulz@gmail.com>
+	* Add a value check incase a GStreamer track has a volume range of 0 (fixes lp #624520)
+
+2010-11-18  Steve Dodier <sidnioulz@gmail.com>
 	* Fix xfce4-volumed.desktop's exec argument (fixes lp #538407)
 
 2010-11-02  Steve Dodier <sidnioulz@gmail.com>

@@ -356,10 +356,13 @@ xvd_calculate_avg_volume(XvdInstance *Inst,
 						 gint num_channels)
 {
 	if (Inst->track) {
-		gint i, s=0;
+		gint i, s=0, step;
 		for (i=0; i<num_channels; i++) {
-			s += ((volumes[i] - Inst->track->min_volume) * 100 / 
-			     (Inst->track->max_volume - Inst->track->min_volume));
+			step=Inst->track->max_volume - Inst->track->min_volume;
+			if (!step)
+				++step;
+			
+			s += ((volumes[i] - Inst->track->min_volume) * 100 / step);
 		}
 		Inst->current_vol = s/num_channels;
 	}
