@@ -1,4 +1,4 @@
-AC_INIT([xfce4-volumed], [0.1.10], [http://bugs.launchpad.net/xfce4-volumed])
+AC_INIT([xfce4-volumed], [0.1.11], [http://bugs.launchpad.net/xfce4-volumed])
 AM_INIT_AUTOMAKE([AC_PACKAGE_TARNAME()], [AC_PACKAGE_VERSION()])
 
 AC_CONFIG_SRCDIR([src/main.c])
