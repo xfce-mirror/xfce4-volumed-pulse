@@ -155,10 +155,16 @@ void
 xvd_mixer_init_volume(XvdInstance *Inst)
 {
 	if ((Inst->card) && (Inst->track)) {
-		gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
-		gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
-		xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
-		g_free (volumes);
+		if (Inst->track->num_channels) {
+			gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
+			gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
+			xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
+			g_free (volumes);
+		} else {
+			g_debug ("Current track has no volume channels, defaulting volume to 0.\n");
+			xvd_calculate_avg_volume (Inst, NULL, Inst->track->num_channels);
+		}
+
 		Inst->muted = (GST_MIXER_TRACK_HAS_FLAG (Inst->track, GST_MIXER_TRACK_MUTE));
 	}
 }
@@ -389,26 +395,31 @@ xvd_mixer_change_volume(XvdInstance *Inst,
 						gint step)
 {
 	if ((Inst->card) && (Inst->track)) {
-		gint i;
-		gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
+		if(Inst->track->num_channels) {
+			gint i;
+			gint *volumes = g_malloc (sizeof (gint) * Inst->track->num_channels);
 		
-		gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
+			gst_mixer_get_volume (GST_MIXER (Inst->card), Inst->track, volumes);
 		
-		for (i=0; i<Inst->track->num_channels; i++) {
-			volumes[i] += _nearest_int ((gdouble)(step * (Inst->track->max_volume - Inst->track->min_volume)) / 100.0);
+			for (i=0; i<Inst->track->num_channels; i++) {
+				volumes[i] += _nearest_int ((gdouble)(step * (Inst->track->max_volume - Inst->track->min_volume)) / 100.0);
 			
-			if (volumes[i] > Inst->track->max_volume)
-				volumes[i] = Inst->track->max_volume;
+				if (volumes[i] > Inst->track->max_volume)
+					volumes[i] = Inst->track->max_volume;
 				
-			if (volumes[i] < Inst->track->min_volume)
-				volumes[i] = Inst->track->min_volume;
+				if (volumes[i] < Inst->track->min_volume)
+					volumes[i] = Inst->track->min_volume;
+			}
+			xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
+		
+			gst_mixer_set_volume (GST_MIXER (Inst->card), Inst->track, volumes);
+			g_free (volumes);
+		
+			return TRUE;
+		} else {
+			g_debug ("Current track has no volume channels, cannot change volume.\n");
+			return FALSE;
 		}
-		xvd_calculate_avg_volume (Inst, volumes, Inst->track->num_channels);
-		
-		gst_mixer_set_volume (GST_MIXER (Inst->card), Inst->track, volumes);
-		g_free (volumes);
-		
-		return TRUE;
 	}
 	return FALSE;
 }

@@ -1,4 +1,7 @@
 2010-11-18  Steve Dodier <sidnioulz@gmail.com>
+	* Check for volume channels before getting a GStreamer track's volume (fixes lp #667617)
+
+2010-11-18  Steve Dodier <sidnioulz@gmail.com>
 	* Add a value check incase a GStreamer track has a volume range of 0 (fixes lp #624520)
 
 2010-11-18  Steve Dodier <sidnioulz@gmail.com>
