@@ -57,9 +57,9 @@ AM_CONDITIONAL(HAVE_LIBNOTIFY, [test "$HAVE_LIBNOTIFY" = "1"])
 
 
 if test "x$enable_debug" = "xyes"; then
-  CFLAGS="$CFLAGS -g"
+  CFLAGS="-g"
 else
-  CFLAGS="$CFLAGS -O2 -DNDEBUG"
+  CFLAGS="-O2 -DNDEBUG"
 fi
 
 AC_OUTPUT([
