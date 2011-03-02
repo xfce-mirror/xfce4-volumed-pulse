@@ -370,7 +370,10 @@ xvd_calculate_avg_volume(XvdInstance *Inst,
 			
 			s += ((volumes[i] - Inst->track->min_volume) * 100 / step);
 		}
-		Inst->current_vol = s/num_channels;
+		if(num_channels)
+			Inst->current_vol = s/num_channels;
+		else
+			Inst->current_vol = 0;
 	}
 	else {
 		Inst->current_vol = 0.0;

@@ -1,3 +1,6 @@
+2011-03-02  Steve Dodier <sidnioulz@gmail.com>
+	* Another check to avoid SIGFPE when calculating average volume (valid card/track but no volume channels)
+
 2010-11-18  Steve Dodier <sidnioulz@gmail.com>
 	* Check for volume channels before getting a GStreamer track's volume (fixes lp #667617)
 
