@@ -1,4 +1,7 @@
 2011-03-03  Steve Dodier <sidnioulz@gmail.com>
+	* Removed deprecated "Encoding" entry in .desktop file (thanks to Samuli Suominen)
+
+2011-03-03  Steve Dodier <sidnioulz@gmail.com>
 	* Allow compatibility with Libnotify 0.7 (thanks to Samuli Suominen for the patch)
 
 2011-03-03  Steve Dodier <sidnioulz@gmail.com>
