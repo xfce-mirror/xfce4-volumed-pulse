@@ -1,4 +1,7 @@
 2011-03-03  Steve Dodier <sidnioulz@gmail.com>
+	* Allow compatibility with Libnotify 0.7 (thanks to Samuli Suominen for the patch)
+
+2011-03-03  Steve Dodier <sidnioulz@gmail.com>
 	* Partially applying a patch from Yves-Alexis Perez to allow custom CFLAGS when building in release mode
 
 2011-03-02  Steve Dodier <sidnioulz@gmail.com>
