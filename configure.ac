@@ -59,7 +59,7 @@ AM_CONDITIONAL(HAVE_LIBNOTIFY, [test "$HAVE_LIBNOTIFY" = "1"])
 if test "x$enable_debug" = "xyes"; then
   CFLAGS="-g"
 else
-  CFLAGS="-O2 -DNDEBUG"
+  CFLAGS="$CFLAGS -O2 -DNDEBUG"
 fi
 
 AC_OUTPUT([
@@ -73,7 +73,11 @@ echo "Xfce4-Volumed"
 echo "	Installing in : ${prefix}"
 echo "	Using LibNotify : ${with_libnotify}"
 echo "	Compiler : ${CC}"
-echo "	Compiler flags : ${CFLAGS}"
+if test "x$enable_debug" = "xyes"; then
+	echo "	Compiler flags : ${CFLAGS} (edit configure.ac to change them)"
+else
+	echo "	Compiler flags : ${CFLAGS}"
+fi
 echo ""
 echo "	Configuration is done OK."
 echo "" 
