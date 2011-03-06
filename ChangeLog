@@ -1,3 +1,6 @@
+2001-03-06  Steve Dodier <sidnioulz@gmail.com>
+	* Changed CFLAGS again in configure.ac
+
 2011-03-03  Steve Dodier <sidnioulz@gmail.com>
 	* Removed deprecated "Encoding" entry in .desktop file (thanks to Samuli Suominen)
 
