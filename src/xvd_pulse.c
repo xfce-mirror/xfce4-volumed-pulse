@@ -45,6 +45,10 @@ static void xvd_notify_volume_mute         (pa_context                     *c,
 #define xvd_notify_volume_mute NULL
 #endif
 
+#ifdef HAVE_LIBNOTIFY
+static guint    xvd_get_readable_volume    (const pa_cvolume               *vol);
+#endif
+
 static void xvd_context_state_callback     (pa_context                     *c,
                                             void                           *userdata);
 
@@ -134,9 +138,6 @@ xvd_update_volume (XvdInstance        *i,
 {
   pa_operation *op = NULL;
   pa_cvolume  *new_volume = NULL;
-#ifdef HAVE_LIBNOTIFY
-  guint        new_vol = 0;
-#endif
 
   if (!i || !i->pulse_context)
     {
@@ -173,8 +174,7 @@ xvd_update_volume (XvdInstance        *i,
     }
 
 #ifdef HAVE_LIBNOTIFY
-  new_vol = 100 * pa_cvolume_avg ((const pa_cvolume *)new_volume) / PA_VOLUME_NORM;
-  i->new_vol = CLAMP (new_vol, 0, 100);
+  i->new_vol = xvd_get_readable_volume ((const pa_cvolume *)new_volume);
 #endif
 
   op = pa_context_set_sink_volume_by_index (i->pulse_context,
@@ -455,9 +455,6 @@ xvd_sink_info_callback (pa_context         *c,
                         void               *userdata)
 {
   XvdInstance *i = (XvdInstance *) userdata;
-#ifdef HAVE_LIBNOTIFY
-  guint        new_vol = 0;
-#endif
 
   /* detect the end of the list */
   if (eol > 0)
@@ -478,8 +475,7 @@ xvd_sink_info_callback (pa_context         *c,
           i->volume = sink->volume;
           i->mute = sink->mute;
 #ifdef HAVE_LIBNOTIFY
-  new_vol = 100 * pa_cvolume_avg ((const pa_cvolume *)&sink->volume) / PA_VOLUME_NORM;
-  i->current_vol = CLAMP (new_vol, 0, 100);
+  i->current_vol = xvd_get_readable_volume ((const pa_cvolume *)&sink->volume);
 #endif
         }
     }
@@ -493,9 +489,6 @@ xvd_default_sink_info_callback (pa_context         *c,
                                 void               *userdata)
 {
   XvdInstance *i = (XvdInstance *) userdata;
-#ifdef HAVE_LIBNOTIFY
-  guint        new_vol = 0;
-#endif
 
   /* detect the end of the list */
   if (eol > 0)
@@ -514,14 +507,13 @@ xvd_default_sink_info_callback (pa_context         *c,
           i->volume = info->volume;
           i->mute = info->mute;
 #ifdef HAVE_LIBNOTIFY
-  new_vol = 100 * pa_cvolume_avg ((const pa_cvolume *)&info->volume) / PA_VOLUME_NORM;
-  i->current_vol = CLAMP (new_vol, 0, 100);
+  i->current_vol = xvd_get_readable_volume ((const pa_cvolume *)&info->volume);
 #endif
         }
     }
 }
 
-static void 
+static void
 xvd_update_sink_callback (pa_context         *c,
                           const pa_sink_info *info,
                           int                 eol,
@@ -529,7 +521,6 @@ xvd_update_sink_callback (pa_context         *c,
 {
   XvdInstance *i = (XvdInstance *) userdata;
 #ifdef HAVE_LIBNOTIFY
-  guint        new_vol = 0;
   int          mute = 0;
 #endif
 
@@ -544,8 +535,7 @@ xvd_update_sink_callback (pa_context         *c,
           return;
         }
 #ifdef HAVE_LIBNOTIFY
-  new_vol = 100 * pa_cvolume_avg ((const pa_cvolume *)&info->volume) / PA_VOLUME_NORM;
-  i->new_vol = CLAMP (new_vol, 0, 100);
+      i->new_vol = xvd_get_readable_volume ((const pa_cvolume *)&info->volume);
 #endif
       i->sink_index = info->index;
       i->volume = info->volume;
@@ -561,3 +551,17 @@ xvd_update_sink_callback (pa_context         *c,
 #endif
     }
 }
+
+#ifdef HAVE_LIBNOTIFY
+/**
+ * Returns a volume usable on notifications.
+ */
+static guint
+xvd_get_readable_volume (const pa_cvolume *vol)
+{
+  guint new_vol = 0;
+
+  new_vol = 100 * pa_cvolume_avg (vol) / PA_VOLUME_NORM;
+  return CLAMP (new_vol, 0, 100);
+}
+#endif
