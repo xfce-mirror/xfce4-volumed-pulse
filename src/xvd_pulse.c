@@ -238,9 +238,16 @@ xvd_notify_volume_update (pa_context *c,
 {
   XvdInstance  *i = (XvdInstance *) userdata;
 
-  if (!userdata)
+  if (!c || !userdata)
     {
       g_warning ("xvd_notify_volume_update: invalid argument");
+      return;
+    }
+
+  if (!success)
+    {
+      g_warning ("xvd_notify_volume_update: operation failed, %s",
+                 pa_strerror (pa_context_errno (c)));
       return;
     }
 
@@ -271,9 +278,16 @@ xvd_notify_volume_mute (pa_context *c,
 {
   XvdInstance  *i = (XvdInstance *) userdata;
 
-  if (!userdata)
+  if (!c || !userdata)
     {
       g_warning ("xvd_notify_volume_mute: invalid argument");
+      return;
+    }
+
+  if (!success)
+    {
+      g_warning ("xvd_notify_volume_mute: operation failed, %s",
+                 pa_strerror (pa_context_errno (c)));
       return;
     }
 
