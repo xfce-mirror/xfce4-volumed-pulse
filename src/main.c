@@ -23,7 +23,7 @@
 
 #include "xvd_keys.h"
 #include "xvd_data_types.h"
-#include "xvd_mixer.h"
+#include "xvd_pulse.h"
 #include "xvd_xfconf.h"
 #ifdef HAVE_LIBNOTIFY
 #include "xvd_notify.h"
@@ -70,14 +70,12 @@ xvd_daemonize()
 static void 
 xvd_shutdown()
 {
+	xvd_close_pulse (Inst);
+	
 	#ifdef HAVE_LIBNOTIFY
-	xvd_clean_mixer_bus (Inst);
 	xvd_notify_uninit (Inst);
 	#endif
 	
-	xvd_clean_card_name (Inst);
-	xvd_clean_cards (Inst);
-	xvd_clean_track (Inst);
 	xvd_keys_release (Inst);
 	xvd_xfconf_shutdown (Inst);
 	
@@ -87,24 +85,16 @@ xvd_shutdown()
 static void 
 xvd_instance_init(XvdInstance *i)
 {
-	i->mixers = NULL;
-	i->card = NULL;
-	i->card_name = NULL;
-	i->nameless_cards_count = 0;
-	i->track = NULL;
-	i->track_label = NULL;
+	i->pa_main_loop = NULL;
+	i->pulse_context = NULL;
+	i->sink_index = -1;
 	i->error = NULL;
 	i->chan = NULL;
-	i->xfconf_card_name = NULL;
-	i->xfconf_track_label = NULL;
-	i->previously_set_track_label = NULL;
-	i->bus = NULL;
-	i->bus_id = 0;
 	i->loop = NULL;
-	i->current_vol = 0;
-	i->muted = FALSE;
 	#ifdef HAVE_LIBNOTIFY
- 	i->gauge_notifications = FALSE;
+	i->current_vol = 0;
+	i->new_vol = 0;
+	i->gauge_notifications = FALSE;
 	i->notification	= NULL;
 	#endif
 }
@@ -121,33 +111,20 @@ main(gint argc, gchar **argv)
   
   gtk_init(&argc, &argv);
 
-	/* Gstreamer init */
-	gst_init (NULL,NULL);
-
 	/* Grab the keys */
 	xvd_keys_init (Inst);
 
 	/* Xfconf init */
 	xvd_xfconf_init (Inst);
   
-	/* Get card/track from xfconf */
-	if (!xvd_xfconf_get_card (Inst)) {
-		g_debug ("Main: There seems to be no active card defined in xfconf.\n");
+	/* Pulse init */
+	if (!xvd_open_pulse (Inst))
+	{
+		g_warning ("Unable to initialize pulseaudio support, quitting");
+		xvd_shutdown ();
+		return 1;
 	}
 	
-	/* Mixer init */
-	xvd_mixer_init (Inst);
-	#ifdef HAVE_LIBNOTIFY
-	xvd_mixer_init_bus (Inst);
-	#endif
-	
-	// A mutex for the track might help in very unlikely cases. //TODO
-	xvd_get_card_from_mixer (Inst, Inst->xfconf_card_name, NULL);
-	
-	xvd_xfconf_get_track (Inst);
-	xvd_get_track_from_mixer (Inst, Inst->xfconf_track_label, NULL);
-	
-	xvd_mixer_init_volume (Inst);
 	xvd_xfconf_get_vol_step (Inst);
 	
 	/* Libnotify init and idle till ready for the main loop */
