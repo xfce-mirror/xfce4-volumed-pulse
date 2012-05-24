@@ -28,13 +28,6 @@
 #define PA_VOL_STEP_DEFAULT ((pa_volume_t)((VOL_STEP_DEFAULT_VAL * PA_VOLUME_NORM) / 100))
 
 
-typedef enum _XvdVolStepDirection
-{
-  XVD_UP,
-  XVD_DOWN
-} XvdVolStepDirection;
-
-
 /**
  * Entry point, required to use the pulseaudio server.
  */

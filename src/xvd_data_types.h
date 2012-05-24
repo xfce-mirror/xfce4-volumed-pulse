@@ -44,6 +44,12 @@
 #include <libnotify/notification.h>
 #endif
 
+typedef enum _XvdVolStepDirection
+{
+  XVD_UP,
+  XVD_DOWN
+} XvdVolStepDirection;
+
 typedef struct {
 	/* PA data */
 	pa_glib_mainloop *pa_main_loop;
