@@ -68,20 +68,20 @@ void
 xvd_notify_volume_notification(XvdInstance *Inst)
 {
 	if (Inst->current_vol == 0)
-		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-low", 0);
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", 0);
 	else if (Inst->current_vol < 34)
-		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-low", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", Inst->current_vol);
 	else if (Inst->current_vol < 67)
-		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-medium", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-medium", Inst->current_vol);
 	else
-		xvd_notify_notification (Inst, (Inst->muted) ? "audio-volume-muted" : "audio-volume-high", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-high", Inst->current_vol);
 }
 
 void
 xvd_notify_overshoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst, 
-	    (Inst->muted) ? "audio-volume-muted" : "audio-volume-high",
+	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-high",
 	    (Inst->gauge_notifications) ? 101 : 100);
 }
 
@@ -89,7 +89,7 @@ void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst, 
-	    (Inst->muted) ? "audio-volume-muted" : "audio-volume-low",
+	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-low",
 	    (Inst->gauge_notifications) ? -1 : 0);
 }
 
