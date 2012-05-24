@@ -29,24 +29,16 @@
 #include "xvd_pulse.h"
 
 
+static pa_cvolume old_volume;
+static int        old_mute;
+
+
 #ifdef HAVE_LIBNOTIFY
-static void xvd_notify_volume_update       (pa_context                     *c,
+static void xvd_notify_volume_callback     (pa_context                     *c,
                                             int                             success,
                                             void                           *userdata);
 #else
-#define xvd_notify_volume_update NULL
-#endif
-
-#ifdef HAVE_LIBNOTIFY
-static void xvd_notify_volume_mute         (pa_context                     *c,
-                                            int                             success,
-                                            void                           *userdata);
-#else
-#define xvd_notify_volume_mute NULL
-#endif
-
-#ifdef HAVE_LIBNOTIFY
-static guint    xvd_get_readable_volume    (const pa_cvolume               *vol);
+#define xvd_notify_volume_callback NULL
 #endif
 
 static void xvd_context_state_callback     (pa_context                     *c,
@@ -101,43 +93,11 @@ xvd_close_pulse (XvdInstance *i)
 }
 
 
-static gboolean
-xvd_connect_to_pulse (XvdInstance *i)
-{
-  pa_context_flags_t flags = PA_CONTEXT_NOFAIL;
-
-  if (i->pulse_context)
-    {
-      pa_context_unref (i->pulse_context);
-      i->pulse_context = NULL;
-    }
-
-  i->pulse_context = pa_context_new (pa_glib_mainloop_get_api (i->pa_main_loop),
-                                     XVD_APPNAME);
-  g_assert(i->pulse_context);
-  pa_context_set_state_callback (i->pulse_context,
-                                 xvd_context_state_callback,
-                                 i);
-
-  if (pa_context_connect (i->pulse_context,
-                          NULL,
-                          flags,
-                          NULL) < 0)
-    {
-      g_warning ("xvd_connect_to_pulse: failed to connect context: %s",
-                 pa_strerror (pa_context_errno (i->pulse_context)));
-      return FALSE;
-    }
-  return TRUE;
-}
-
-
 void
 xvd_update_volume (XvdInstance        *i,
                    XvdVolStepDirection d)
 {
   pa_operation *op = NULL;
-  pa_cvolume  *new_volume = NULL;
 
   if (!i || !i->pulse_context)
     {
@@ -156,16 +116,19 @@ xvd_update_volume (XvdInstance        *i,
       g_warning ("xvd_update_volume: undefined sink");
     }
 
+  /* backup */
+  old_volume = i->volume;
+
   switch (d)
     {
       case XVD_UP:
-        new_volume = pa_cvolume_inc_clamp (&i->volume,
-                                           PA_VOL_STEP_DEFAULT,
-                                           PA_VOLUME_NORM);
+        pa_cvolume_inc_clamp (&i->volume,
+                              PA_VOL_STEP_DEFAULT,
+                              PA_VOLUME_NORM);
       break;
       case XVD_DOWN:
-        new_volume = pa_cvolume_dec (&i->volume,
-                                     PA_VOL_STEP_DEFAULT);
+        pa_cvolume_dec (&i->volume,
+                        PA_VOL_STEP_DEFAULT);
       break;
       default:
         g_warning ("xvd_update_volume: invalid direction");
@@ -173,14 +136,10 @@ xvd_update_volume (XvdInstance        *i,
       break;
     }
 
-#ifdef HAVE_LIBNOTIFY
-  i->new_vol = xvd_get_readable_volume ((const pa_cvolume *)new_volume);
-#endif
-
   op = pa_context_set_sink_volume_by_index (i->pulse_context,
                                             i->sink_index,
-                                            new_volume,
-                                            xvd_notify_volume_update,
+                                            &i->volume,
+                                            xvd_notify_volume_callback,
                                             i);
 
   if (!op)
@@ -214,10 +173,13 @@ xvd_toggle_mute (XvdInstance *i)
       g_warning ("xvd_toggle_mute: undefined sink");
     }
 
+  /* backup existing mute and update */
+  i->mute = !(old_mute = i->mute);
+
   op =  pa_context_set_sink_mute_by_index (i->pulse_context,
                                            i->sink_index,
-                                           !i->mute,
-                                           xvd_notify_volume_mute,
+                                           i->mute,
+                                           xvd_notify_volume_callback,
                                            i);
 
   if (!op)
@@ -226,17 +188,64 @@ xvd_toggle_mute (XvdInstance *i)
       return;
     }
   pa_operation_unref (op);
-  i->mute = !i->mute;
+}
+
+
+guint32
+xvd_get_readable_volume (const pa_cvolume *vol)
+{
+  guint new_vol = 0;
+
+  new_vol = 100 * pa_cvolume_avg (vol) / PA_VOLUME_NORM;
+  return CLAMP (new_vol, 0, 100);
+}
+
+
+/**
+ * This function does the context initialization.
+ */
+static gboolean
+xvd_connect_to_pulse (XvdInstance *i)
+{
+  pa_context_flags_t flags = PA_CONTEXT_NOFAIL;
+
+  if (i->pulse_context)
+    {
+      pa_context_unref (i->pulse_context);
+      i->pulse_context = NULL;
+    }
+
+  i->pulse_context = pa_context_new (pa_glib_mainloop_get_api (i->pa_main_loop),
+                                     XVD_APPNAME);
+  g_assert(i->pulse_context);
+  pa_context_set_state_callback (i->pulse_context,
+                                 xvd_context_state_callback,
+                                 i);
+
+  if (pa_context_connect (i->pulse_context,
+                          NULL,
+                          flags,
+                          NULL) < 0)
+    {
+      g_warning ("xvd_connect_to_pulse: failed to connect context: %s",
+                 pa_strerror (pa_context_errno (i->pulse_context)));
+      return FALSE;
+    }
+  return TRUE;
 }
 
 
 #ifdef HAVE_LIBNOTIFY
+/**
+ * Decides the type of notification to show on a change.
+ */
 static void
-xvd_notify_volume_update (pa_context *c,
-                          int         success,
-                          void       *userdata)
+xvd_notify_volume_callback (pa_context *c,
+                            int         success,
+                            void       *userdata)
 {
   XvdInstance  *i = (XvdInstance *) userdata;
+  guint32       r_oldv, r_curv;
 
   if (!c || !userdata)
     {
@@ -251,55 +260,33 @@ xvd_notify_volume_update (pa_context *c,
       return;
     }
 
-  if (i->current_vol >= 100 && i->new_vol >= i->current_vol)
+  /* the sink was (un)muted */
+  if (old_mute != i->mute)
     {
-      i->current_vol = i->new_vol;
-      xvd_notify_overshoot_notification (i);
+      xvd_notify_volume_notification (i);
+      return;
     }
-  else if (i->current_vol <= 0 && i->new_vol <= i->current_vol)
-   {
-     i->current_vol = i->new_vol;
-     xvd_notify_undershoot_notification (i);
-   }
+
+  r_oldv = xvd_get_readable_volume (&old_volume);
+  r_curv = xvd_get_readable_volume (&i->volume);
+
+  /* trying to go above 100 */
+  if (r_oldv == 100 && r_curv >= r_oldv)
+    xvd_notify_overshoot_notification (i);
+  /* trying to go below 0 */
+  else if (r_oldv == 0 && r_curv <= r_oldv)
+   xvd_notify_undershoot_notification (i);
+  /* normal */
   else
-   {
-     i->current_vol = i->new_vol;
-     xvd_notify_volume_notification (i);
-   }
+   xvd_notify_volume_notification (i);
 }
 #endif
 
 
-#ifdef HAVE_LIBNOTIFY
+/**
+ * Callback to analyze events emitted by the server.
+ */
 static void
-xvd_notify_volume_mute (pa_context *c,
-                        int         success,
-                        void       *userdata)
-{
-  XvdInstance  *i = (XvdInstance *) userdata;
-
-  if (!c || !userdata)
-    {
-      g_warning ("xvd_notify_volume_mute: invalid argument");
-      return;
-    }
-
-  if (!success)
-    {
-      g_warning ("xvd_notify_volume_mute: operation failed, %s",
-                 pa_strerror (pa_context_errno (c)));
-      return;
-    }
-
-  if (i->mute)
-    xvd_notify_notification (i, "audio-volume-muted", i->current_vol);
-  else
-    xvd_notify_volume_notification (i);
-}
-#endif
-
-
-static void 
 xvd_subscribed_events_callback (pa_context                     *c,
                                 enum pa_subscription_event_type t,
                                 uint32_t                        index,
@@ -308,7 +295,7 @@ xvd_subscribed_events_callback (pa_context                     *c,
   XvdInstance  *i = (XvdInstance *) userdata;
   pa_operation *op = NULL;
 
-  if (!userdata)
+  if (!c || !userdata)
     {
       g_critical ("xvd_subscribed_events_callback: invalid argument");
       return;
@@ -316,6 +303,7 @@ xvd_subscribed_events_callback (pa_context                     *c,
 
   switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK)
     {
+      /* change on a sink, re-fetch it */
       case PA_SUBSCRIPTION_EVENT_SINK:
         if (i->sink_index != index)
           return;
@@ -337,6 +325,7 @@ xvd_subscribed_events_callback (pa_context                     *c,
              pa_operation_unref (op);
           }
       break;
+      /* change on the server, re-fetch everything */
       case PA_SUBSCRIPTION_EVENT_SERVER:
         op = pa_context_get_server_info (c,
                                          xvd_server_info_callback,
@@ -353,6 +342,9 @@ xvd_subscribed_events_callback (pa_context                     *c,
 }
 
 
+/**
+ * Callback to check the status of context initialization.
+ */
 static void
 xvd_context_state_callback (pa_context *c,
                             void       *userdata)
@@ -361,7 +353,7 @@ xvd_context_state_callback (pa_context *c,
   pa_subscription_mask_t mask = PA_SUBSCRIPTION_MASK_SINK | PA_SUBSCRIPTION_MASK_SERVER;
   pa_operation          *op = NULL;
 
-  if (!userdata)
+  if (!c || !userdata)
     {
       g_critical ("xvd_context_state_callback: invalid argument");
       return;
@@ -378,6 +370,7 @@ xvd_context_state_callback (pa_context *c,
                                            xvd_subscribed_events_callback,
                                            userdata);
 
+        /* subscribe to sink and server changes, we don't need more */
         op = pa_context_subscribe (c,
                                    mask,
                                    NULL,
@@ -405,12 +398,21 @@ xvd_context_state_callback (pa_context *c,
 }
 
 
-static void 
+/**
+ * Callback to retrieve server infos (mostly, the default sink).
+ */
+static void
 xvd_server_info_callback (pa_context           *c,
                           const pa_server_info *info,
                           void                 *userdata)
 {
   pa_operation *op = NULL;
+
+  if (!c || !userdata)
+    {
+      g_warning ("xvd_server_info_callback: invalid argument");
+      return;
+    }
 
   if (!info)
     {
@@ -434,6 +436,8 @@ xvd_server_info_callback (pa_context           *c,
     }
   else
     {
+      /* when PulseAudio doesn't set a default sink, look at all of them
+         and hope to find a usable one */
       op = pa_context_get_sink_info_list(c,
                                          xvd_sink_info_callback,
                                          userdata);
@@ -448,6 +452,9 @@ xvd_server_info_callback (pa_context           *c,
 }
 
 
+/**
+ * Callback to retrieve the infos of a given sink.
+ */
 static void
 xvd_sink_info_callback (pa_context         *c,
                         const pa_sink_info *sink,
@@ -467,21 +474,22 @@ xvd_sink_info_callback (pa_context         *c,
           return;
         }
 
+      /* If there's no default sink, try to use this one */
       if (i->sink_index == PA_INVALID_INDEX
           /* indicator-sound does that check */
           && g_ascii_strncasecmp ("auto_null", sink->name, 9) != 0)
         {
           i->sink_index = sink->index;
-          i->volume = sink->volume;
-          i->mute = sink->mute;
-#ifdef HAVE_LIBNOTIFY
-  i->current_vol = xvd_get_readable_volume ((const pa_cvolume *)&sink->volume);
-#endif
+          old_volume = i->volume = sink->volume;
+          old_mute = i->mute = sink->mute;
         }
     }
 }
 
 
+/**
+ * Callback to retrieve the infos of the default sink.
+ */
 static void
 xvd_default_sink_info_callback (pa_context         *c,
                                 const pa_sink_info *info,
@@ -501,18 +509,20 @@ xvd_default_sink_info_callback (pa_context         *c,
           return;
         }
 
+      /* is this a new default sink? */
       if (i->sink_index != info->index)
         {
           i->sink_index = info->index;
-          i->volume = info->volume;
-          i->mute = info->mute;
-#ifdef HAVE_LIBNOTIFY
-  i->current_vol = xvd_get_readable_volume ((const pa_cvolume *)&info->volume);
-#endif
+          old_volume = i->volume = info->volume;
+          old_mute = i->mute = info->mute;
         }
     }
 }
 
+
+/**
+ * Callback for sink changes reported by PulseAudio.
+ */
 static void
 xvd_update_sink_callback (pa_context         *c,
                           const pa_sink_info *info,
@@ -520,9 +530,6 @@ xvd_update_sink_callback (pa_context         *c,
                           void               *userdata)
 {
   XvdInstance *i = (XvdInstance *) userdata;
-#ifdef HAVE_LIBNOTIFY
-  int          mute = 0;
-#endif
 
   /* detect the end of the list */
   if (eol > 0)
@@ -534,34 +541,17 @@ xvd_update_sink_callback (pa_context         *c,
           g_warning ("xvd_default_sink_info_callback: invalid argument");
           return;
         }
-#ifdef HAVE_LIBNOTIFY
-      i->new_vol = xvd_get_readable_volume ((const pa_cvolume *)&info->volume);
-#endif
+
+      /* re-fetch infos from PulseAudio */
       i->sink_index = info->index;
+      old_volume = i->volume;
       i->volume = info->volume;
-#ifdef HAVE_LIBNOTIFY
-      if (i->new_vol != i->current_vol)
-        xvd_notify_volume_update (NULL, 1, i);
-      mute = i->mute;
-#endif
+      old_mute = i->mute;
       i->mute = info->mute;
+
 #ifdef HAVE_LIBNOTIFY
-     if (mute != info->mute)
-       xvd_notify_volume_mute (NULL, 1, i);
+      /* notify user of the possible changes */
+      xvd_notify_volume_callback (c, 1, i);
 #endif
     }
 }
-
-#ifdef HAVE_LIBNOTIFY
-/**
- * Returns a volume usable on notifications.
- */
-static guint
-xvd_get_readable_volume (const pa_cvolume *vol)
-{
-  guint new_vol = 0;
-
-  new_vol = 100 * pa_cvolume_avg (vol) / PA_VOLUME_NORM;
-  return CLAMP (new_vol, 0, 100);
-}
-#endif

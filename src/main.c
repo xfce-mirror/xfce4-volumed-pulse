@@ -92,8 +92,6 @@ xvd_instance_init(XvdInstance *i)
 	i->chan = NULL;
 	i->loop = NULL;
 	#ifdef HAVE_LIBNOTIFY
-	i->current_vol = 0;
-	i->new_vol = 0;
 	i->gauge_notifications = FALSE;
 	i->notification	= NULL;
 	#endif

@@ -35,13 +35,30 @@ typedef enum _XvdVolStepDirection
 } XvdVolStepDirection;
 
 
-gboolean xvd_open_pulse    (XvdInstance        *i);
+/**
+ * Entry point, required to use the pulseaudio server.
+ */
+gboolean xvd_open_pulse          (XvdInstance        *i);
 
-void     xvd_close_pulse   (XvdInstance        *i);
+/**
+ * Exit(?!) point, to clean up.
+ */
+void     xvd_close_pulse         (XvdInstance        *i);
 
-void     xvd_update_volume (XvdInstance        *i,
-                            XvdVolStepDirection d);
+/**
+ * Changes the volume in the given direction.
+ */
+void     xvd_update_volume       (XvdInstance        *i,
+                                  XvdVolStepDirection d);
 
-void     xvd_toggle_mute   (XvdInstance        *i);
+/**
+ * Toggle mute.
+ */
+void     xvd_toggle_mute         (XvdInstance        *i);
+
+/**
+ * Returns a volume as guint32 (e.g. usable on notifications)
+ */
+guint32  xvd_get_readable_volume (const pa_cvolume   *vol);
 
 #endif

@@ -63,8 +63,6 @@ typedef struct {
     /* Libnotify vars */
 	gboolean			gauge_notifications;
 	NotifyNotification* notification;
-	guint                           current_vol;
-	guint                           new_vol;
 	#endif
 
 	/* Other Xvd vars */

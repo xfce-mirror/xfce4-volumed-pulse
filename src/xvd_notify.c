@@ -67,14 +67,15 @@ xvd_notify_notification(XvdInstance *Inst,
 void 
 xvd_notify_volume_notification(XvdInstance *Inst)
 {
-	if (Inst->current_vol == 0)
+	guint32 vol = xvd_get_readable_volume (&Inst->volume);
+	if (vol == 0)
 		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", 0);
-	else if (Inst->current_vol < 34)
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", Inst->current_vol);
-	else if (Inst->current_vol < 67)
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-medium", Inst->current_vol);
+	else if (vol < 34)
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", vol);
+	else if (vol < 67)
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-medium", vol);
 	else
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-high", Inst->current_vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-high", vol);
 }
 
 void
