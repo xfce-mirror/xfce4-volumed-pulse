@@ -29,6 +29,12 @@
 #include "xvd_pulse.h"
 
 
+/**
+ * Translates a "human" volume step (0-100) for PulseAudio.
+ */
+#define XVD_PA_VOLUME_STEP(n) ((pa_volume_t)((n) * PA_VOLUME_NORM / 100))
+
+
 static pa_cvolume old_volume;
 static int        old_mute;
 
@@ -123,12 +129,12 @@ xvd_update_volume (XvdInstance        *i,
     {
       case XVD_UP:
         pa_cvolume_inc_clamp (&i->volume,
-                              PA_VOL_STEP_DEFAULT,
+                              XVD_PA_VOLUME_STEP(i->vol_step),
                               PA_VOLUME_NORM);
       break;
       case XVD_DOWN:
         pa_cvolume_dec (&i->volume,
-                        PA_VOL_STEP_DEFAULT);
+                        XVD_PA_VOLUME_STEP(i->vol_step));
       break;
       default:
         g_warning ("xvd_update_volume: invalid direction");
