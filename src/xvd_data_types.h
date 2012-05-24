@@ -25,9 +25,6 @@
 #endif
 
 #define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
-#define XFCONF_MIXER_ACTIVECARD "/active-card"
-#define XFCONF_MIXER_ACTIVECARD_LEGACY "/sound-card"
-#define XFCONF_MIXER_ACTIVETRACK "/active-track"
 #define XFCONF_MIXER_VOL_STEP "/volume-step-size"
 #define VOL_STEP_DEFAULT_VAL 5
 
@@ -38,7 +35,9 @@
 
 #include <xfconf/xfconf.h>
 
-#include <gst/audio/mixerutils.h>
+#include <pulse/glib-mainloop.h>
+#include <pulse/context.h>
+#include <pulse/volume.h>
 
 #include <keybinder.h>
 #ifdef HAVE_LIBNOTIFY
@@ -46,36 +45,26 @@
 #endif
 
 typedef struct {
-	/* Sound card being used and list of cards */
-	GList     			*mixers;
-	GstElement      	*card;
-	gchar				*card_name;
-	gint				nameless_cards_count;
+	/* PA data */
+	pa_glib_mainloop *pa_main_loop;
+	pa_context       *pulse_context;
+	guint32           sink_index;
+	pa_cvolume        volume;
+	int               mute;
 	
-	/* Tracks for the card */
-	GstMixerTrack   	*track;
-	gchar           	*track_label;
-
 	/* Xfconf vars */
 	GError     			*error;
 	XfconfChannel		*chan;
-	gchar				*xfconf_card_name;
-	gchar           	*xfconf_track_label;
-	gchar				*previously_set_track_label;
-
-	/* Gstreamer bus vars */
-	GstBus				*bus;
-	guint				bus_id;
 
 	/* Volume vars */
-	guint				current_vol;
 	guint				vol_step;
-	gboolean        	muted;
   
   #ifdef HAVE_LIBNOTIFY
     /* Libnotify vars */
 	gboolean			gauge_notifications;
 	NotifyNotification* notification;
+	guint                           current_vol;
+	guint                           new_vol;
 	#endif
 
 	/* Other Xvd vars */
