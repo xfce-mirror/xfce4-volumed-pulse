@@ -27,18 +27,6 @@
 void 
 xvd_xfconf_init(XvdInstance *Inst);
 
-gboolean 
-xvd_xfconf_get_card(XvdInstance *Inst);
-
-void 
-xvd_xfconf_set_card(XvdInstance *Inst, gchar *value);
-
-gboolean
-xvd_xfconf_get_track(XvdInstance *Inst);
-
-void 
-xvd_xfconf_set_track(XvdInstance *Inst, gchar *value);
-
 void   
 xvd_xfconf_get_vol_step(XvdInstance *Inst);
 
