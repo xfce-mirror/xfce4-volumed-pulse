@@ -75,7 +75,7 @@ static void xvd_update_sink_callback       (pa_context                     *c,
 static gboolean xvd_connect_to_pulse       (XvdInstance                    *i);
 
 
-gboolean 
+gboolean
 xvd_open_pulse (XvdInstance *i)
 {
   i->pa_main_loop = pa_glib_mainloop_new (NULL);
@@ -140,14 +140,14 @@ xvd_update_volume (XvdInstance        *i,
 
   if (!i || !i->pulse_context)
     {
-      g_warning ("xvd_update_volume: pulseaudio context is null");    
+      g_warning ("xvd_update_volume: pulseaudio context is null");
       return;
     }
-  
+
   if (pa_context_get_state (i->pulse_context) != PA_CONTEXT_READY)
     {
-      g_warning ("xvd_update_volume: pulseaudio context isn't ready");    
-      return;    
+      g_warning ("xvd_update_volume: pulseaudio context isn't ready");
+      return;
     }
 
   if (i->sink_index == PA_INVALID_INDEX)
@@ -187,7 +187,7 @@ xvd_update_volume (XvdInstance        *i,
     {
       g_warning ("xvd_update_volume: failed");
       return;
-    }                                                    
+    }
   pa_operation_unref (op);
 }
 
@@ -199,21 +199,21 @@ xvd_toggle_mute (XvdInstance *i)
 
   if (!i || !i->pulse_context)
    {
-      g_warning ("xvd_toggle_mute: pulseaudio context is null");    
+      g_warning ("xvd_toggle_mute: pulseaudio context is null");
       return;
    }
 
   if (pa_context_get_state (i->pulse_context) != PA_CONTEXT_READY)
     {
-      g_warning ("xvd_toggle_mute: pulseaudio context isn't ready");    
-      return;    
+      g_warning ("xvd_toggle_mute: pulseaudio context isn't ready");
+      return;
     }
 
   if (i->sink_index == PA_INVALID_INDEX)
     {
       g_warning ("xvd_toggle_mute: undefined sink");
     }
-  
+
   op =  pa_context_set_sink_mute_by_index (i->pulse_context,
                                            i->sink_index,
                                            !i->mute,
