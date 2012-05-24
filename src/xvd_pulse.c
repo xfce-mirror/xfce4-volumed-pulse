@@ -197,7 +197,7 @@ xvd_toggle_mute (XvdInstance *i)
 }
 
 
-guint32
+gint
 xvd_get_readable_volume (const pa_cvolume *vol)
 {
   guint new_vol = 0;

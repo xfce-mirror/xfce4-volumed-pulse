@@ -67,7 +67,7 @@ xvd_notify_notification(XvdInstance *Inst,
 void 
 xvd_notify_volume_notification(XvdInstance *Inst)
 {
-	guint32 vol = xvd_get_readable_volume (&Inst->volume);
+	gint vol = xvd_get_readable_volume (&Inst->volume);
 	if (vol == 0)
 		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-off", vol);
 	else if (vol < 34)

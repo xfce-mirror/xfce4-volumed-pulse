@@ -47,8 +47,8 @@ void     xvd_update_volume       (XvdInstance        *i,
 void     xvd_toggle_mute         (XvdInstance        *i);
 
 /**
- * Returns a volume as guint32 (e.g. usable on notifications)
+ * Returns a percentage volume (i.e. between 0 and 100, usable on notifications)
  */
-guint32  xvd_get_readable_volume (const pa_cvolume   *vol);
+gint     xvd_get_readable_volume (const pa_cvolume   *vol);
 
 #endif
