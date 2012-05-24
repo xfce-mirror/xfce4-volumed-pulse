@@ -22,10 +22,7 @@
 #endif
 
 #include "xvd_keys.h"
-#include "xvd_mixer.h"
-#ifdef HAVE_LIBNOTIFY
-#include "xvd_notify.h"
-#endif
+#include "xvd_pulse.h"
 
 static
 void xvd_raise_handler (const char *keystring, void *Inst)
@@ -34,14 +31,8 @@ void xvd_raise_handler (const char *keystring, void *Inst)
   
   g_debug ("The RaiseVolume key was pressed.");
   
-  if (xvd_mixer_change_volume (xvd_inst, xvd_inst->vol_step)) {
-		#ifdef HAVE_LIBNOTIFY
-			if (xvd_inst->current_vol == 100)
-				xvd_notify_overshoot_notification (xvd_inst);
-			else
-				xvd_notify_volume_notification (xvd_inst);
-		#endif
-  }
+  xvd_update_volume (xvd_inst,
+                     XVD_UP);
 }
 
 static
@@ -51,14 +42,8 @@ void xvd_lower_handler (const char *keystring, void *Inst)
   
   g_debug ("The LowerVolume key was pressed.");
   
-  if (xvd_mixer_change_volume (xvd_inst, xvd_inst->vol_step * -1)) {
-		#ifdef HAVE_LIBNOTIFY
-			if (xvd_inst->current_vol == 0)
-				xvd_notify_undershoot_notification (xvd_inst);
-			else
-				xvd_notify_volume_notification (xvd_inst);
-		#endif
-  }
+  xvd_update_volume (xvd_inst,
+                     XVD_DOWN);
 }
 
 static
@@ -68,16 +53,7 @@ void xvd_mute_handler (const char *keystring, void *Inst)
   
   g_debug ("The LowerVolume key was pressed.");
   
-  if (xvd_mixer_toggle_mute (xvd_inst)) {
-		#ifdef HAVE_LIBNOTIFY
-			if (xvd_inst->muted)
-				xvd_notify_notification (xvd_inst, "audio-volume-muted", xvd_inst->current_vol);
-			else {
-				xvd_mixer_init_volume (xvd_inst);
-				xvd_notify_volume_notification (xvd_inst);
-			}
-		#endif
-	}
+  xvd_toggle_mute (xvd_inst);
 }
 
 void
