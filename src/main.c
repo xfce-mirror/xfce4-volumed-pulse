@@ -43,7 +43,16 @@
 #endif
 
 
-XvdInstance     *Inst = NULL;
+static XvdInstance *Inst = NULL;
+
+static gboolean opt_version = FALSE;
+static gboolean opt_no_daemon = FALSE;
+static GOptionEntry option_entries[] =
+{
+    { "version", 'v', 0, G_OPTION_ARG_NONE, &opt_version, "Version information", NULL },
+    { "no-daemon", 0, 0, G_OPTION_ARG_NONE, &opt_no_daemon, "Do not fork to the background", NULL },
+    { NULL }
+};
 
 
 static gint
@@ -103,18 +112,51 @@ xvd_instance_init(XvdInstance *i)
 gint 
 main(gint argc, gchar **argv)
 {
+	GError         *error = NULL;
+	GOptionContext *context;
+
+	context = g_option_context_new (NULL);
+	g_option_context_add_main_entries (context, option_entries, NULL);
+	g_option_context_add_group (context, gtk_get_option_group (FALSE));
+
+	gtk_init (&argc, &argv);
+
+	/* parse options */
+	if (!g_option_context_parse (context, &argc, &argv, &error))
+	{
+		g_print ("%s: %s.\n", G_LOG_DOMAIN, error->message);
+		g_print ("Type '%s --help' for usage.", G_LOG_DOMAIN);
+		g_print ("\n");
+
+		g_error_free (error);
+		g_option_context_free (context);
+
+		return EXIT_FAILURE;
+	}
+	g_option_context_free (context);
+
+	/* check if we should print version information */
+	if (G_UNLIKELY (opt_version))
+	{
+		g_print ("%s %s\n\n", G_LOG_DOMAIN, PACKAGE_VERSION);
+		g_print ("Please report bugs to <%s>.", PACKAGE_BUGREPORT);
+		g_print ("\n");
+
+		return EXIT_SUCCESS;
+	}
+
 	Inst = g_malloc (sizeof (XvdInstance));
 	xvd_instance_init (Inst);
-	/* Daemon mode */
-	#ifndef DEBUG
-	if (xvd_daemonize () == -1)
+
+	/* daemonize the process */
+	if (!opt_no_daemon)
 	{
-		/* show message and continue in normal mode */
-		g_warning ("Failed to fork the process: %s. Continuing in non-daemon mode.", g_strerror (errno));
+		if (xvd_daemonize () == -1)
+		{
+			/* show message and continue in normal mode */
+			g_warning ("Failed to fork the process: %s. Continuing in non-daemon mode.", g_strerror (errno));
+		}
 	}
-	#endif
-  
-  gtk_init(&argc, &argv);
 
 	/* Grab the keys */
 	xvd_keys_init (Inst);
