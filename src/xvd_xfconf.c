@@ -41,17 +41,20 @@ _xvd_xfconf_handle_changes(XfconfChannel  *re_channel,
 	}
 }
 
-void 
+gboolean
 xvd_xfconf_init(XvdInstance *Inst)
 {
-	if (FALSE == xfconf_init (&Inst->error)) {
-		g_warning ("%s%s\n", "Couldn't initialize xfconf : ", Inst->error->message);
-        g_error_free (Inst->error);
-        exit (EXIT_FAILURE);
+	GError *err = NULL;
+
+	if (!xfconf_init (&err)) {
+		g_warning ("%s%s\n", "Couldn't initialize xfconf: ", err->message);
+		g_error_free (err);
+		return FALSE;
 	}
 
 	Inst->chan = xfconf_channel_get (XFCONF_MIXER_CHANNEL_NAME);
 	g_signal_connect (G_OBJECT (Inst->chan), "property-changed", G_CALLBACK (_xvd_xfconf_handle_changes), Inst);
+	return TRUE;
 }
 
 void 

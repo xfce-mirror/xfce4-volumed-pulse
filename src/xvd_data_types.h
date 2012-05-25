@@ -58,10 +58,7 @@ typedef struct {
 	int               mute;
 	
 	/* Xfconf vars */
-	GError     			*error;
 	XfconfChannel		*chan;
-
-	/* Volume vars */
 	guint				vol_step;
   
   #ifdef HAVE_LIBNOTIFY

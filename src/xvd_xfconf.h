@@ -23,7 +23,7 @@
 #include "xvd_data_types.h"
 
 
-void 
+gboolean
 xvd_xfconf_init(XvdInstance *Inst);
 
 void   

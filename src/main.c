@@ -100,7 +100,6 @@ xvd_instance_init(XvdInstance *i)
 	i->pa_main_loop = NULL;
 	i->pulse_context = NULL;
 	i->sink_index = -1;
-	i->error = NULL;
 	i->chan = NULL;
 	i->loop = NULL;
 	#ifdef HAVE_LIBNOTIFY
@@ -162,14 +161,18 @@ main(gint argc, gchar **argv)
 	xvd_keys_init (Inst);
 
 	/* Xfconf init */
-	xvd_xfconf_init (Inst);
+	if (!xvd_xfconf_init (Inst))
+	{
+		xvd_shutdown ();
+		return EXIT_FAILURE;
+	}
   
 	/* Pulse init */
 	if (!xvd_open_pulse (Inst))
 	{
 		g_warning ("Unable to initialize pulseaudio support, quitting");
 		xvd_shutdown ();
-		return 1;
+		return EXIT_FAILURE;
 	}
 	
 	xvd_xfconf_get_vol_step (Inst);

@@ -34,7 +34,8 @@ xvd_notify_notification(XvdInstance *Inst,
 						gchar* icon, 
 						gint value)
 {
-	gchar* title						= NULL;
+	GError* error						= NULL;
+	gchar*  title						= NULL;
 
 	if ((icon != NULL) && (g_strcmp0(icon, "audio-volume-muted") == 0)) {
 		// TRANSLATORS: this is the body of the ATK interface of the volume notifications. This is the case when volume is muted
@@ -61,11 +62,10 @@ xvd_notify_notification(XvdInstance *Inst,
 							 "");
 	}
 	
-	Inst->error = NULL;
-	if (!notify_notification_show (Inst->notification, &Inst->error))
+	if (!notify_notification_show (Inst->notification, &error))
 	{
-		g_warning ("Error while sending notification : %s\n", Inst->error->message);
-		g_error_free (Inst->error);
+		g_warning ("Error while sending notification : %s\n", error->message);
+		g_error_free (error);
 	}
 }
 
