@@ -21,6 +21,10 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #include "xvd_keys.h"
 #include "xvd_data_types.h"
 #include "xvd_pulse.h"

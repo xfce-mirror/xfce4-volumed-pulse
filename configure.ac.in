@@ -48,7 +48,7 @@ AC_PROG_INSTALL()
 dnl **********************************
 dnl *** Check for standard headers ***
 dnl **********************************
-AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([errno.h stdio.h stdlib.h string.h unistd.h])
 AC_CHECK_FUNCS([daemon setsid])
 
 dnl ***********************************
