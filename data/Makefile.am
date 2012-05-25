@@ -1,15 +1,9 @@
-desktopdir = $(sysconfdir)/xdg/autostart
+# $Id$
 
-# Desktop file for the application
-desktop_in_in_files = xfce4-volumed.desktop.in.in
-desktop_in_files = $(desktop_in_in_files:.desktop.in.in=.desktop.in)
-desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+autostartdir = $(sysconfdir)/xdg/autostart
 
-xfce4-volumed.desktop.in: xfce4-volumed.desktop.in.in
-	$(AM_V_GEN) ( \
-		sed -e "s^@PREFIX@^$(prefix)^" \
-			$< > $@ \
-	)
+autostart_DATA = xfce4-volumed-pulse.desktop
 
-EXTRA_DIST = $(desktop_DATA)
+EXTRA_DIST = $(autostart_DATA)
 
+# vi:set ts=8 sw=8 noet ai nocindent syntax=automake:

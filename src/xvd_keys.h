@@ -20,8 +20,12 @@
 #ifndef _XVD_KEYS_H
 #define _XVD_KEYS_H
 
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
+#endif
+#ifdef HAVE_STRING_H
 #include <string.h>
+#endif
 
 #include "xvd_data_types.h"
 

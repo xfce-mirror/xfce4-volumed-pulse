@@ -1,0 +1,104 @@
+dnl ***************************
+dnl *** Version information ***
+dnl ***************************
+m4_define([xfce4_volumed_pulse_version_major], [0])
+m4_define([xfce4_volumed_pulse_version_minor], [1])
+m4_define([xfce4_volumed_pulse_version_micro], [13])
+m4_define([xfce4_volumed_pulse_version_nano], [])
+m4_define([xfce4_volumed_pulse_version_build], [@REVISION@])
+m4_define([xfce4_volumed_pulse_version_tag], [git]) # Leave empty for releases
+m4_define([xfce4_volumed_pulse_version], [xfce4_volumed_pulse_version_major().xfce4_volumed_pulse_version_minor().xfce4_volumed_pulse_version_micro()ifelse(xfce4_volumed_pulse_version_nano(), [], [], [.xfce4_volumed_pulse_version_nano()])ifelse(xfce4_volumed_pulse_version_tag(), [git], [xfce4_volumed_pulse_version_tag()-xfce4_volumed_pulse_version_build()], [xfce4_volumed_pulse_version_tag()])])
+
+dnl ***************************
+dnl *** Initialize autoconf ***
+dnl ***************************
+AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [http://bugs.launchpad.net/xfce4-volumed])
+AC_PREREQ([2.50])
+AC_REVISION([@REVISION@])
+
+dnl ***************************
+dnl *** Initialize automake ***
+dnl ***************************
+AM_INIT_AUTOMAKE([1.8 dist-bzip2 tar-ustar])
+AM_CONFIG_HEADER([config.h])
+AM_MAINTAINER_MODE()
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+dnl *******************************
+dnl *** Check for UNIX variants ***
+dnl *******************************
+AC_AIX()
+AC_ISC_POSIX()
+AC_MINIX()
+
+dnl ********************************
+dnl *** Check for basic programs ***
+dnl ********************************
+AC_PROG_CC()
+AM_PROG_CC_C_O
+AC_PROG_LD()
+AC_PROG_INSTALL()
+
+dnl **********************************
+dnl *** Check for standard headers ***
+dnl **********************************
+AC_CHECK_HEADERS([stdio.h stdlib.h string.h unistd.h])
+AC_CHECK_FUNCS([daemon setsid])
+
+dnl ***********************************
+dnl *** Check for required packages ***
+dnl ***********************************
+XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.16])
+XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.6.0])
+XDT_CHECK_PACKAGE([LIBPULSE], [libpulse], [0.9.19])
+XDT_CHECK_PACKAGE([LIBPULSEMAINLOOPGLIB], [libpulse-mainloop-glib], [0.9.19])
+XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder], [0.2.2])
+
+dnl **************************************
+dnl *** Optional support for Libnotify ***
+dnl **************************************
+XDT_CHECK_OPTIONAL_PACKAGE([LIBNOTIFY], [libnotify], [0.1.3],
+                           [libnotify], [Notification support])
+
+dnl ***********************************
+dnl *** Check for debugging support ***
+dnl ***********************************
+XDT_FEATURE_DEBUG()
+
+dnl **************************************
+dnl *** Check for linker optimizations ***
+dnl **************************************
+XDT_FEATURE_LINKER_OPTS()
+
+dnl *********************************
+dnl *** Substitute platform flags ***
+dnl *********************************
+AC_MSG_CHECKING([PLATFORM_CPPFLAGS])
+AC_MSG_RESULT([$PLATFORM_CPPFLAGS])
+AC_SUBST([PLATFORM_CPPFLAGS])
+AC_MSG_CHECKING([PLATFORM_CFLAGS])
+AC_MSG_RESULT([$PLATFORM_CFLAGS])
+AC_SUBST([PLATFORM_CFLAGS])
+AC_MSG_CHECKING([PLATFORM_LDFLAGS])
+AC_MSG_RESULT([$PLATFORM_LDFLAGS])
+AC_SUBST([PLATFORM_LDFLAGS])
+
+AC_OUTPUT([
+Makefile
+data/Makefile
+src/Makefile
+])
+
+dnl ***************************
+dnl *** Print configuration ***
+dnl ***************************
+echo
+echo "Build Configuration:"
+echo
+echo "* Installation prefix:       $prefix"
+echo "* Debug Support:             $enable_debug"
+if test x"$LIBNOTIFY_FOUND" = x"yes"; then
+echo "* Libnotify support:         yes"
+else
+echo "* Libnotify support:         no"
+fi

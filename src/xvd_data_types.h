@@ -24,14 +24,12 @@
 #include "config.h"
 #endif
 
-#define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
-#define XFCONF_MIXER_VOL_STEP "/volume-step-size"
-#define VOL_STEP_DEFAULT_VAL 5
-
-#define XVD_APPNAME "Xfce volume daemon"
-
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #include <xfconf/xfconf.h>
 
@@ -40,9 +38,17 @@
 #include <pulse/volume.h>
 
 #include <keybinder.h>
+
 #ifdef HAVE_LIBNOTIFY
 #include <libnotify/notification.h>
 #endif
+
+#define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
+#define XFCONF_MIXER_VOL_STEP "/volume-step-size"
+#define VOL_STEP_DEFAULT_VAL 5
+
+#define XVD_APPNAME "Xfce volume daemon"
+
 
 typedef enum _XvdVolStepDirection
 {
