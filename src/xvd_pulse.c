@@ -205,7 +205,7 @@ xvd_get_readable_volume (const pa_cvolume *vol)
   guint new_vol = 0;
 
   new_vol = 100 * pa_cvolume_avg (vol) / PA_VOLUME_NORM;
-  return CLAMP (new_vol, 0, 100);
+  return MIN (new_vol, 100);
 }
 
 
@@ -317,7 +317,7 @@ xvd_subscribed_events_callback (pa_context                     *c,
           return;
 
         if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
-          i->sink_index == PA_INVALID_INDEX;
+          i->sink_index = PA_INVALID_INDEX;
         else
           {
              op = pa_context_get_sink_info_by_index (c,
@@ -369,11 +369,28 @@ xvd_context_state_callback (pa_context *c,
 
   switch (pa_context_get_state (c))
     {
+      case PA_CONTEXT_UNCONNECTED:
+        g_debug ("xvd_context_state_callback: The context hasn't been connected yet");
+      break;
+      case PA_CONTEXT_CONNECTING:
+        g_debug ("xvd_context_state_callback: A connection is being established");
+      break;
+      case PA_CONTEXT_AUTHORIZING:
+        g_debug ("xvd_context_state_callback: The client is authorizing itself to the daemon");
+      break;
+      case PA_CONTEXT_SETTING_NAME:
+        g_debug ("xvd_context_state_callback: The client is passing its application name to the daemon");
+      break;
+      case PA_CONTEXT_TERMINATED:
+        g_debug ("xvd_context_state_callback: The connection was terminated cleanly");
+        i->sink_index = PA_INVALID_INDEX;
+      break;
       case PA_CONTEXT_FAILED:
-        g_critical("xvd_context_state_callback: PA_CONTEXT_FAILED, is PulseAudio Daemon running?");
-        return;
+        g_critical("xvd_context_state_callback: The connection failed or was disconnected, is PulseAudio Daemon running?");
+        i->sink_index = PA_INVALID_INDEX;
       break;
       case PA_CONTEXT_READY:
+        g_debug ("xvd_context_state_callback: The connection is established, the context is ready to execute operations");
         pa_context_set_subscribe_callback (c,
                                            xvd_subscribed_events_callback,
                                            userdata);

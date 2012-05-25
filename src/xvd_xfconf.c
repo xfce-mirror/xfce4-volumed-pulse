@@ -60,8 +60,8 @@ xvd_xfconf_init(XvdInstance *Inst)
 void 
 xvd_xfconf_get_vol_step(XvdInstance *Inst)
 {
-	Inst->vol_step = xfconf_channel_get_uint (Inst->chan, XFCONF_MIXER_VOL_STEP, -1);
-	if ((Inst->vol_step < 0) || (Inst->vol_step > 100)) {
+	Inst->vol_step = xfconf_channel_get_uint (Inst->chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);
+	if (Inst->vol_step > 100) {
 		g_debug ("%s\n", "The volume step xfconf property is out of range, setting back to default");
 		Inst->vol_step = VOL_STEP_DEFAULT_VAL;
 		xfconf_channel_set_uint (Inst->chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);

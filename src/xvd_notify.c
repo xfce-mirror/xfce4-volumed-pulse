@@ -103,10 +103,12 @@ void
 xvd_notify_init(XvdInstance *Inst, 
 				const gchar *appname)
 {
+	GList *caps_list = NULL;
+
 	Inst->gauge_notifications = TRUE;
 	notify_init (appname);
 	
-	GList *caps_list = notify_get_server_caps ();
+	caps_list = notify_get_server_caps ();
 	
 	if (caps_list)
 	{
