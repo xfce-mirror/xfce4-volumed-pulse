@@ -25,6 +25,8 @@
 #include <errno.h>
 #endif
 
+#include <gtk/gtk.h>
+
 #include "xvd_keys.h"
 #include "xvd_data_types.h"
 #include "xvd_pulse.h"

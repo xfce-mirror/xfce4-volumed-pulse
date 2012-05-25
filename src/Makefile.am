@@ -18,6 +18,7 @@ xfce4_volumed_pulse_SOURCES = \
 
 xfce4_volumed_pulse_CFLAGS = \
 	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
 	$(XFCONF_CFLAGS) \
 	$(LIBKEYBINDER_CFLAGS) \
 	$(LIBPULSE_CFLAGS) \
@@ -30,6 +31,7 @@ xfce4_volumed_pulse_LDFLAGS = \
 
 xfce4_volumed_pulse_LDADD = \
 	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
 	$(XFCONF_LIBS) \
 	$(LIBKEYBINDER_LIBS) \
 	$(LIBPULSE_LIBS) \

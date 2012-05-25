@@ -55,6 +55,7 @@ dnl ***********************************
 dnl *** Check for required packages ***
 dnl ***********************************
 XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.16])
+XDT_CHECK_PACKAGE([GTK], [gtk+-2.0], [2.20])
 XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.6.0])
 XDT_CHECK_PACKAGE([LIBPULSE], [libpulse], [0.9.19])
 XDT_CHECK_PACKAGE([LIBPULSEMAINLOOPGLIB], [libpulse-mainloop-glib], [0.9.19])
