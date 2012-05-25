@@ -25,14 +25,12 @@
 #ifndef _XVD_NOTIFY_H
 #define _XVD_NOTIFY_H
 
-#include <libnotify/notify.h>
-#include <libnotify/notification.h>
-#include <libnotify/notify-enum-types.h>
-
 #include "xvd_data_types.h"
+
 
 #define SYNCHRONOUS      "x-canonical-private-synchronous"
 #define LAYOUT_ICON_ONLY "x-canonical-private-icon-only"
+
 
 void 
 xvd_notify_notification(XvdInstance *Inst, 

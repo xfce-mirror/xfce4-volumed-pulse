@@ -24,20 +24,13 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#include <glib.h>
 
 #include <xfconf/xfconf.h>
 
 #include <pulse/glib-mainloop.h>
 #include <pulse/context.h>
 #include <pulse/volume.h>
-
-#include <keybinder.h>
 
 #ifdef HAVE_LIBNOTIFY
 #include <libnotify/notification.h>

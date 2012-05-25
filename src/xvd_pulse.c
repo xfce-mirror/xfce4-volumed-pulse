@@ -24,9 +24,9 @@
 #include <pulse/error.h>
 #include <pulse/introspect.h>
 #include <pulse/subscribe.h>
-#include <pulse/volume.h>
 
 #include "xvd_pulse.h"
+#include "xvd_notify.h"
 
 
 /**

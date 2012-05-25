@@ -21,21 +21,30 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
 #endif
 
 #include <gtk/gtk.h>
 
-#include "xvd_keys.h"
 #include "xvd_data_types.h"
+#include "xvd_keys.h"
 #include "xvd_pulse.h"
 #include "xvd_xfconf.h"
+
 #ifdef HAVE_LIBNOTIFY
 #include "xvd_notify.h"
 #endif
 
+
 XvdInstance     *Inst = NULL;
+
 
 static gint
 xvd_daemonize(void)

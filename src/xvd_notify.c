@@ -22,7 +22,12 @@
 #endif
 
 #ifdef HAVE_LIBNOTIFY
+#include <libnotify/notify.h>
+
 #include "xvd_notify.h"
+
+#include "xvd_pulse.h"
+
 
 void 
 xvd_notify_notification(XvdInstance *Inst, 

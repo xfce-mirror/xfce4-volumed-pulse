@@ -21,8 +21,11 @@
 #include <config.h>
 #endif
 
+#include <keybinder.h>
+
 #include "xvd_keys.h"
 #include "xvd_pulse.h"
+
 
 static
 void xvd_raise_handler (const char *keystring, void *Inst)

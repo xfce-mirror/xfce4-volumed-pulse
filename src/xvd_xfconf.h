@@ -20,9 +20,8 @@
 #ifndef _XVD_XFCONF_H
 #define _XVD_XFCONF_H
 
-#include <xfconf/xfconf.h>
-
 #include "xvd_data_types.h"
+
 
 void 
 xvd_xfconf_init(XvdInstance *Inst);
