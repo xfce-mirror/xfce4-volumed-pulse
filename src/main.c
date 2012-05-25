@@ -31,40 +31,28 @@
 
 XvdInstance     *Inst = NULL;
 
-static void 
+static gint
 xvd_daemonize()
 {
-	gint pid;
-	FILE *checkout = NULL;
-	
+#ifdef HAVE_DAEMON
+	return daemon (1, 1);
+#else
+	pid_t pid;
+
 	pid = fork ();
-	
-	if (-1 == pid) {
-		g_warning ("Failed to fork the daemon. Continuing in non-daemon mode.\n");
-	} else if (pid > 0) {
-		exit (EXIT_SUCCESS);
-	}
+	if (pid < 0)
+		return -1;
 
-	pid = setsid ();
-	if (pid < 0) {
-		exit (EXIT_FAILURE);
-	}
+	if (pid > 0)
+		_exit (EXIT_SUCCESS);
 
-	if ((chdir ("/")) < 0) {
-		exit (EXIT_FAILURE);
-	}
+#ifdef HAVE_SETSID
+	if (setsid () < 0)
+		return -1;
+#endif
 
-	checkout = freopen ("/dev/null", "r", stdin);
-	if (NULL == checkout)
-		g_warning("Error when redirecting stdin to /dev/null\n");
-
-	checkout = freopen ("/dev/null", "w", stdout);
-	if (NULL == checkout)
-		g_warning("Error when redirecting stdout to /dev/null\n");
-
-	checkout = freopen ("/dev/null", "w", stderr);
-	if (NULL == checkout)
-		g_warning("Error when redirecting stderr to /dev/null\n");
+	return 0;
+#endif
 }
 
 static void 
@@ -103,8 +91,12 @@ main(gint argc, gchar **argv)
 	Inst = g_malloc (sizeof (XvdInstance));
 	xvd_instance_init (Inst);
 	/* Daemon mode */
-	#ifdef NDEBUG
-	xvd_daemonize();
+	#ifndef DEBUG
+	if (xvd_daemonize () == -1)
+	{
+		/* show message and continue in normal mode */
+		g_warning ("Failed to fork the process: %s. Continuing in non-daemon mode.", g_strerror (errno));
+	}
 	#endif
   
   gtk_init(&argc, &argv);
