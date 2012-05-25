@@ -21,12 +21,11 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_LIBNOTIFY
 #include <libnotify/notify.h>
 
-#include "xvd_notify.h"
-
 #include "xvd_pulse.h"
+
+#include "xvd_notify.h"
 
 
 void 
@@ -143,4 +142,3 @@ xvd_notify_uninit (XvdInstance *Inst)
 	Inst->notification = NULL;
 	notify_uninit ();
 }
-#endif

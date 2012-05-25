@@ -17,13 +17,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _XVD_NOTIFY_H
+#define _XVD_NOTIFY_H
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#ifdef HAVE_LIBNOTIFY
-#ifndef _XVD_NOTIFY_H
-#define _XVD_NOTIFY_H
 
 #include "xvd_data_types.h"
 
@@ -52,5 +51,5 @@ xvd_notify_init(XvdInstance *Inst,
 
 void 
 xvd_notify_uninit(XvdInstance *Inst);
-#endif
+
 #endif

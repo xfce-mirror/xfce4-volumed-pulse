@@ -26,8 +26,10 @@
 #include <pulse/subscribe.h>
 
 #include "xvd_pulse.h"
-#include "xvd_notify.h"
 
+#ifdef HAVE_LIBNOTIFY
+#include "xvd_notify.h"
+#endif
 
 /**
  * Translates a "human" volume step (0-100) for PulseAudio.
