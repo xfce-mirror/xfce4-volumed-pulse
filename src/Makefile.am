@@ -14,7 +14,7 @@ xfce4_volumed_pulse_SOURCES = \
 	xvd_pulse.c \
 	xvd_pulse.h \
 	xvd_xfconf.c \
-	xvd_xfconf.h \
+	xvd_xfconf.h
 
 xfce4_volumed_pulse_CFLAGS = \
 	$(GLIB_CFLAGS) \
