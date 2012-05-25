@@ -38,7 +38,7 @@
 XvdInstance     *Inst = NULL;
 
 static gint
-xvd_daemonize()
+xvd_daemonize(void)
 {
 #ifdef HAVE_DAEMON
 	return daemon (1, 1);
@@ -62,7 +62,7 @@ xvd_daemonize()
 }
 
 static void 
-xvd_shutdown()
+xvd_shutdown(void)
 {
 	xvd_close_pulse (Inst);
 	
