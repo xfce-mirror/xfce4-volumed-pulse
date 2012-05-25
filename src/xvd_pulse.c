@@ -120,6 +120,7 @@ xvd_update_volume (XvdInstance        *i,
   if (i->sink_index == PA_INVALID_INDEX)
     {
       g_warning ("xvd_update_volume: undefined sink");
+      return;
     }
 
   /* backup */
@@ -177,6 +178,7 @@ xvd_toggle_mute (XvdInstance *i)
   if (i->sink_index == PA_INVALID_INDEX)
     {
       g_warning ("xvd_toggle_mute: undefined sink");
+      return;
     }
 
   /* backup existing mute and update */
@@ -542,9 +544,9 @@ xvd_update_sink_callback (pa_context         *c,
     return;
   else
     {
-      if (!userdata || !info)
+      if (!c || !userdata || !info)
         {
-          g_warning ("xvd_default_sink_info_callback: invalid argument");
+          g_warning ("xvd_update_sink_callback: invalid argument");
           return;
         }
 
