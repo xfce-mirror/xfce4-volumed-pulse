@@ -578,7 +578,9 @@ xvd_update_sink_callback (pa_context         *c,
 
 #ifdef HAVE_LIBNOTIFY
       /* notify user of the possible changes */
-      xvd_notify_volume_callback (c, 1, i);
+      if (xvd_get_readable_volume (&old_volume) != xvd_get_readable_volume (&i->volume)
+          || old_mute != i->mute)
+        xvd_notify_volume_callback (c, 1, i);
 #endif
     }
 }
