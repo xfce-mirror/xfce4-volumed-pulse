@@ -1,0 +1,7 @@
+0.2.0
+=====
+- Initial port to Pulseaudio.
+
+0.1.x
+=====
+- Uses GStreamer backend, cf. <http://git.xfce.org/apps/xfce4-volumed/log/> for a list of changes.
