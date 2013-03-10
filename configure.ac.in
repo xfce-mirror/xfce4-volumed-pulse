@@ -12,7 +12,7 @@ m4_define([xfce4_volumed_pulse_version], [xfce4_volumed_pulse_version_major().xf
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
-AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [http://bugs.launchpad.net/xfce4-volumed])
+AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [http://bugs.launchpad.net/xfce4-volumed-pulse])
 AC_PREREQ([2.50])
 AC_REVISION([@REVISION@])
 

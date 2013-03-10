@@ -1,5 +1,8 @@
 === Authors
+ * original xfce4-volumed (gstreamer)
 	Steve Dodier <sidnioulz@gmail.com>
+ * pulseaudio port
+	Lionel Le Folgoc <lionel@lefolgoc.net>
 
 === Contributions
  * xvd_mixer.c
