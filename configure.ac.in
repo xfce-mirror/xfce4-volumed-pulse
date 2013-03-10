@@ -30,6 +30,11 @@ dnl **************************
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
+dnl ********************************
+dnl *** Support program renaming ***
+dnl ********************************
+AC_ARG_PROGRAM()
+
 dnl *******************************
 dnl *** Check for UNIX variants ***
 dnl *******************************
