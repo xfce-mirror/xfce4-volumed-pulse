@@ -119,8 +119,6 @@ main(gint argc, gchar **argv)
 	g_option_context_add_main_entries (context, option_entries, NULL);
 	g_option_context_add_group (context, gtk_get_option_group (FALSE));
 
-	gtk_init (&argc, &argv);
-
 	/* parse options */
 	if (!g_option_context_parse (context, &argc, &argv, &error))
 	{
@@ -157,6 +155,8 @@ main(gint argc, gchar **argv)
 			g_warning ("Failed to fork the process: %s. Continuing in non-daemon mode.", g_strerror (errno));
 		}
 	}
+
+        gtk_init (&argc, &argv);
 
 	/* Grab the keys */
 	xvd_keys_init (Inst);
