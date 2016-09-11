@@ -101,11 +101,13 @@ xvd_instance_init(XvdInstance *i)
 	i->pa_main_loop = NULL;
 	i->pulse_context = NULL;
 	i->sink_index = -1;
+	i->source_index = -1;
 	i->chan = NULL;
 	i->loop = NULL;
 	#ifdef HAVE_LIBNOTIFY
 	i->gauge_notifications = FALSE;
 	i->notification	= NULL;
+	i->notification_mic	= NULL;
 	#endif
 }
 

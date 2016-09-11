@@ -29,9 +29,9 @@
 #include "xvd_notify.h"
 
 
-void 
-xvd_notify_notification(XvdInstance *Inst, 
-						gchar* icon, 
+void
+xvd_notify_notification(XvdInstance *Inst,
+						gchar* icon,
 						gint value)
 {
 	GError* error						= NULL;
@@ -45,14 +45,14 @@ xvd_notify_notification(XvdInstance *Inst,
 		// TRANSLATORS: %d is the volume displayed as a percent, and %c is replaced by '%'. If it doesn't fit in your locale feel free to file a bug.
 		title = g_strdup_printf ("Volume is at %d%c", value, '%');
 	}
-	
+
 	notify_notification_update (Inst->notification,
 				title,
 				NULL,
 				icon);
-	
+
 	g_free (title);
-	
+
 	if (Inst->gauge_notifications) {
 		notify_notification_set_hint_int32 (Inst->notification,
 							"value",
@@ -61,7 +61,7 @@ xvd_notify_notification(XvdInstance *Inst,
 							 "x-canonical-private-synchronous",
 							 "");
 	}
-	
+
 	if (!notify_notification_show (Inst->notification, &error))
 	{
 		g_warning ("Error while sending notification : %s\n", error->message);
@@ -69,7 +69,7 @@ xvd_notify_notification(XvdInstance *Inst,
 	}
 }
 
-void 
+void
 xvd_notify_volume_notification(XvdInstance *Inst)
 {
 	gint vol = xvd_get_readable_volume (&Inst->volume);
@@ -86,7 +86,7 @@ xvd_notify_volume_notification(XvdInstance *Inst)
 void
 xvd_notify_overshoot_notification(XvdInstance *Inst)
 {
-	xvd_notify_notification (Inst, 
+	xvd_notify_notification (Inst,
 	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-high",
 	    (Inst->gauge_notifications) ? 101 : 100);
 }
@@ -94,22 +94,53 @@ xvd_notify_overshoot_notification(XvdInstance *Inst)
 void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
-	xvd_notify_notification (Inst, 
+	xvd_notify_notification (Inst,
 	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-low",
 	    (Inst->gauge_notifications) ? -1 : 0);
 }
 
-void 
-xvd_notify_init(XvdInstance *Inst, 
+void
+xvd_notify_mic_notification(XvdInstance *Inst)
+{
+	GError* error						= NULL;
+	gchar*  title						= NULL;
+	gchar*  icon						= NULL;
+
+	title = g_strdup_printf ("Microphone is %s", (Inst->mic_mute) ? "muted" : "active");
+	icon = (Inst->mic_mute) ? "microphone-sensitivity-muted" : "microphone-sensitivity-high";
+
+	notify_notification_update (Inst->notification_mic,
+                              title,
+                              NULL,
+                              icon);
+
+	g_free (title);
+
+	if (Inst->gauge_notifications) {
+		notify_notification_set_hint_int32 (Inst->notification_mic,
+							 LAYOUT_ICON_ONLY,
+							 1);
+	}
+
+	if (!notify_notification_show (Inst->notification_mic, &error))
+	{
+		g_warning ("Error while sending mic notification : %s\n", error->message);
+		g_error_free (error);
+	}
+
+}
+
+void
+xvd_notify_init(XvdInstance *Inst,
 				const gchar *appname)
 {
 	GList *caps_list = NULL;
 
 	Inst->gauge_notifications = TRUE;
 	notify_init (appname);
-	
+
 	caps_list = notify_get_server_caps ();
-	
+
 	if (caps_list)
 	{
 		GList *node;
@@ -117,29 +148,34 @@ xvd_notify_init(XvdInstance *Inst,
 		node = g_list_find_custom (caps_list, LAYOUT_ICON_ONLY, (GCompareFunc) g_strcmp0);
 		if (!node)
 			Inst->gauge_notifications = FALSE;
-		
+
 /*		node = g_list_find_custom (caps_list, SYNCHRONOUS, (GCompareFunc) g_strcmp0);*/
 /*		if (!node)*/
 /*			Inst->gauge_notifications = FALSE;*/
-		
+
 		g_list_free (caps_list);
 	}
-	
+
 #ifdef NOTIFY_CHECK_VERSION
 #if NOTIFY_CHECK_VERSION (0, 7, 0)
 	Inst->notification = notify_notification_new ("Xfce4-Volumed", NULL, NULL);
+	Inst->notification_mic = notify_notification_new ("Xfce4-Volumed", NULL, NULL);
 #else
 	Inst->notification = notify_notification_new ("Xfce4-Volumed", NULL, NULL, NULL);
+	Inst->notification_mic = notify_notification_new ("Xfce4-Volumed", NULL, NULL, NULL);
 #endif
 #else
 	Inst->notification = notify_notification_new ("Xfce4-Volumed", NULL, NULL, NULL);
+	Inst->notification_mic = notify_notification_new ("Xfce4-Volumed", NULL, NULL, NULL);
 #endif
 }
 
-void 
+void
 xvd_notify_uninit (XvdInstance *Inst)
 {
 	g_object_unref (G_OBJECT (Inst->notification));
 	Inst->notification = NULL;
+	g_object_unref (G_OBJECT (Inst->notification_mic));
+	Inst->notification_mic = NULL;
 	notify_uninit ();
 }

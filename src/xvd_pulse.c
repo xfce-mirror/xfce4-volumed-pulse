@@ -39,14 +39,20 @@
 
 static pa_cvolume old_volume;
 static int        old_mute;
+static int        old_mic_mute;
 
 
 #ifdef HAVE_LIBNOTIFY
 static void xvd_notify_volume_callback     (pa_context                     *c,
                                             int                             success,
                                             void                           *userdata);
+
+static void xvd_notify_mic_callback        (pa_context                     *c,
+                                            int                             success,
+                                            void                           *userdata);
 #else
 #define xvd_notify_volume_callback NULL
+#define xvd_notify_mic_callback NULL
 #endif
 
 static void xvd_context_state_callback     (pa_context                     *c,
@@ -75,6 +81,21 @@ static void xvd_update_sink_callback       (pa_context                     *c,
                                             const pa_sink_info             *info,
                                             int                             eol,
                                             void                           *userdata);
+
+static void xvd_default_source_info_callback (pa_context                     *c,
+                                              const pa_source_info             *info,
+                                              int                             eol,
+                                              void                           *userdata);
+
+static void xvd_source_info_callback         (pa_context                     *c,
+                                              const pa_source_info             *source,
+                                              int                             eol,
+                                              void                           *userdata);
+
+static void xvd_update_source_callback      (pa_context                     *c,
+                                             const pa_source_info             *info,
+                                             int                             eol,
+                                             void                           *userdata);
 
 static gboolean xvd_connect_to_pulse       (XvdInstance                    *i);
 
@@ -201,6 +222,47 @@ xvd_toggle_mute (XvdInstance *i)
 }
 
 
+void
+xvd_toggle_mic_mute (XvdInstance *i)
+{
+  pa_operation *op = NULL;
+
+  if (!i || !i->pulse_context)
+   {
+      g_warning ("xvd_toggle_mic_mute: pulseaudio context is null");
+      return;
+   }
+
+  if (pa_context_get_state (i->pulse_context) != PA_CONTEXT_READY)
+    {
+      g_warning ("xvd_toggle_mic_mute: pulseaudio context isn't ready");
+      return;
+    }
+
+  if (i->source_index == PA_INVALID_INDEX)
+    {
+      g_warning ("xvd_toggle_mic_mute: undefined source");
+      return;
+    }
+
+  /* backup existing mute and update */
+  i->mic_mute = !(old_mic_mute = i->mic_mute);
+
+  op =  pa_context_set_source_mute_by_index (i->pulse_context,
+                                             i->source_index,
+                                             i->mic_mute,
+                                             xvd_notify_mic_callback,
+                                             i);
+
+  if (!op)
+    {
+      g_warning ("xvd_toggle_mic_mute: failed");
+      return;
+    }
+  pa_operation_unref (op);
+}
+
+
 gint
 xvd_get_readable_volume (const pa_cvolume *vol)
 {
@@ -259,13 +321,13 @@ xvd_notify_volume_callback (pa_context *c,
 
   if (!c || !userdata)
     {
-      g_warning ("xvd_notify_volume_update: invalid argument");
+      g_warning ("xvd_notify_volume_callback: invalid argument");
       return;
     }
 
   if (!success)
     {
-      g_warning ("xvd_notify_volume_update: operation failed, %s",
+      g_warning ("xvd_notify_volume_callback: operation failed, %s",
                  pa_strerror (pa_context_errno (c)));
       return;
     }
@@ -289,6 +351,39 @@ xvd_notify_volume_callback (pa_context *c,
   /* normal */
   else
    xvd_notify_volume_notification (i);
+}
+
+
+/**
+ * Shows Mic mute status notification
+ */
+static void
+xvd_notify_mic_callback (pa_context *c,
+                            int         success,
+                            void       *userdata)
+{
+  XvdInstance  *i = (XvdInstance *) userdata;
+  guint32       r_oldv, r_curv;
+
+  if (!c || !userdata)
+    {
+      g_warning ("xvd_notify_mic_callback: invalid argument");
+      return;
+    }
+
+  if (!success)
+    {
+      g_warning ("xvd_notify_mic_callback: operation failed, %s",
+                 pa_strerror (pa_context_errno (c)));
+      return;
+    }
+
+  /* the sink was (un)muted */
+  if (old_mic_mute != i->mic_mute)
+    {
+      xvd_notify_mic_notification (i);
+      return;
+    }
 }
 #endif
 
@@ -335,6 +430,28 @@ xvd_subscribed_events_callback (pa_context                     *c,
              pa_operation_unref (op);
           }
       break;
+      /* change on a source, re-fetch it */
+      case PA_SUBSCRIPTION_EVENT_SOURCE:
+        if (i->source_index != index)
+          return;
+
+        if ((t & PA_SUBSCRIPTION_EVENT_TYPE_MASK) == PA_SUBSCRIPTION_EVENT_REMOVE)
+          i->source_index = PA_INVALID_INDEX;
+        else
+          {
+             op = pa_context_get_source_info_by_index (c,
+                                                       index,
+                                                       xvd_update_source_callback,
+                                                       userdata);
+
+             if (!op)
+               {
+                 g_warning ("xvd_subscribed_events_callback: failed to get source info");
+                 return;
+               }
+             pa_operation_unref (op);
+          }
+      break;
       /* change on the server, re-fetch everything */
       case PA_SUBSCRIPTION_EVENT_SERVER:
         op = pa_context_get_server_info (c,
@@ -360,7 +477,7 @@ xvd_context_state_callback (pa_context *c,
                             void       *userdata)
 {
   XvdInstance           *i = (XvdInstance *) userdata;
-  pa_subscription_mask_t mask = PA_SUBSCRIPTION_MASK_SINK | PA_SUBSCRIPTION_MASK_SERVER;
+  pa_subscription_mask_t mask = PA_SUBSCRIPTION_MASK_SINK | PA_SUBSCRIPTION_MASK_SOURCE | PA_SUBSCRIPTION_MASK_SERVER;
   pa_operation          *op = NULL;
 
   if (!c || !userdata)
@@ -390,6 +507,7 @@ xvd_context_state_callback (pa_context *c,
       case PA_CONTEXT_FAILED:
         g_critical("xvd_context_state_callback: The connection failed or was disconnected, is PulseAudio Daemon running?");
         i->sink_index = PA_INVALID_INDEX;
+        i->source_index = PA_INVALID_INDEX;
       break;
       case PA_CONTEXT_READY:
         g_debug ("xvd_context_state_callback: The connection is established, the context is ready to execute operations");
@@ -397,7 +515,7 @@ xvd_context_state_callback (pa_context *c,
                                            xvd_subscribed_events_callback,
                                            userdata);
 
-        /* subscribe to sink and server changes, we don't need more */
+        /* subscribe to sink/source and server changes, we don't need more */
         op = pa_context_subscribe (c,
                                    mask,
                                    NULL,
@@ -472,6 +590,36 @@ xvd_server_info_callback (pa_context           *c,
       if (!op)
         {
           g_warning("xvd_server_info_callback: pa_context_get_sink_info_list() failed");
+          return;
+        }
+      pa_operation_unref (op);
+    }
+
+  if (info->default_source_name)
+    {
+      op = pa_context_get_source_info_by_name (c,
+                                               info->default_source_name,
+                                               xvd_default_source_info_callback,
+                                               userdata);
+
+      if (!op)
+        {
+          g_warning("xvd_server_info_callback: pa_context_get_source_info_by_name() failed");
+          return;
+        }
+      pa_operation_unref (op);
+    }
+  else
+    {
+      /* when PulseAudio doesn't set a default source, look at all of them
+         and hope to find a usable one */
+      op = pa_context_get_source_info_list(c,
+                                           xvd_source_info_callback,
+                                           userdata);
+
+      if (!op)
+        {
+          g_warning("xvd_server_info_callback: pa_context_get_source_info_list() failed");
           return;
         }
       pa_operation_unref (op);
@@ -581,6 +729,108 @@ xvd_update_sink_callback (pa_context         *c,
       if (xvd_get_readable_volume (&old_volume) != xvd_get_readable_volume (&i->volume)
           || old_mute != i->mute)
         xvd_notify_volume_callback (c, 1, i);
+#endif
+    }
+}
+
+
+/**
+ * Callback to retrieve the infos of a given source.
+ */
+static void
+xvd_source_info_callback (pa_context         *c,
+                          const pa_source_info *source,
+                          int                 eol,
+                          void               *userdata)
+{
+  XvdInstance *i = (XvdInstance *) userdata;
+
+  /* detect the end of the list */
+  if (eol > 0)
+    return;
+  else
+    {
+      if (!userdata || !source)
+        {
+          g_warning ("xvd_source_info_callback: invalid argument");
+          return;
+        }
+
+      /* If there's no default source, try to use this one */
+      if (i->source_index == PA_INVALID_INDEX
+          /* indicator-sound does that check */
+          && g_ascii_strncasecmp ("auto_null", source->name, 9) != 0)
+        {
+          i->source_index = source->index;
+          old_mic_mute = i->mic_mute = source->mute;
+        }
+    }
+}
+
+
+/**
+ * Callback to retrieve the infos of the default source.
+ */
+static void
+xvd_default_source_info_callback (pa_context         *c,
+                                  const pa_source_info *info,
+                                  int                 eol,
+                                  void               *userdata)
+{
+  XvdInstance *i = (XvdInstance *) userdata;
+
+  /* detect the end of the list */
+  if (eol > 0)
+    return;
+  else
+    {
+      if (!userdata || !info)
+        {
+          g_warning ("xvd_default_source_info_callback: invalid argument");
+          return;
+        }
+
+      /* is this a new default source? */
+      if (i->source_index != info->index)
+        {
+          i->source_index = info->index;
+          old_mic_mute = i->mic_mute = info->mute;
+        }
+    }
+}
+
+
+/**
+ * Callback for source changes reported by PulseAudio.
+ */
+static void
+xvd_update_source_callback (pa_context         *c,
+                            const pa_source_info *info,
+                            int                 eol,
+                            void               *userdata)
+{
+  XvdInstance *i = (XvdInstance *) userdata;
+
+  /* detect the end of the list */
+  if (eol > 0)
+    return;
+  else
+    {
+      if (!c || !userdata || !info)
+        {
+          g_warning ("xvd_update_source_callback: invalid argument");
+          return;
+        }
+
+      /* re-fetch infos from PulseAudio */
+      i->source_index = info->index;
+      old_mic_mute = i->mic_mute;
+      i->mic_mute = info->mute;
+
+#ifdef HAVE_LIBNOTIFY
+      /* notify user of the possible changes */
+      if (old_mic_mute != i->mic_mute)
+        xvd_notify_mic_callback (c, 1, i);
 #endif
     }
 }

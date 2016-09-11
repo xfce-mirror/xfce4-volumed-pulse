@@ -47,6 +47,11 @@ void     xvd_update_volume       (XvdInstance        *i,
 void     xvd_toggle_mute         (XvdInstance        *i);
 
 /**
+ * Toggle mic mute.
+ */
+void     xvd_toggle_mic_mute         (XvdInstance        *i);
+
+/**
  * Returns a percentage volume (i.e. between 0 and 100, usable on notifications)
  */
 gint     xvd_get_readable_volume (const pa_cvolume   *vol);

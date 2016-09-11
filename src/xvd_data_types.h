@@ -55,8 +55,10 @@ typedef struct {
 	pa_glib_mainloop *pa_main_loop;
 	pa_context       *pulse_context;
 	guint32           sink_index;
+	guint32           source_index;
 	pa_cvolume        volume;
 	int               mute;
+	int               mic_mute;
 	
 	/* Xfconf vars */
 	XfconfChannel		*chan;
@@ -66,6 +68,7 @@ typedef struct {
     /* Libnotify vars */
 	gboolean			gauge_notifications;
 	NotifyNotification* notification;
+	NotifyNotification* notification_mic;
 	#endif
 
 	/* Other Xvd vars */

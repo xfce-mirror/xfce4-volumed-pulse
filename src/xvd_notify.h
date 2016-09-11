@@ -46,6 +46,11 @@ xvd_notify_overshoot_notification(XvdInstance *Inst);
 void
 xvd_notify_undershoot_notification(XvdInstance *Inst);
 
+
+void
+xvd_notify_mic_notification(XvdInstance *Inst);
+
+
 void 
 xvd_notify_init(XvdInstance *Inst, 
 				const gchar *appname);
