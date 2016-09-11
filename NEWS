@@ -2,7 +2,7 @@
 =====
 - Support for the MicMute key (Christian Pointner)
 - New Xfconf channel "xfce4-volumed-pulse"
-  - property "icon-style" (to enable symbolic icons)
+  - property "icon-style" (to enable symbolic icons, requires xfce4-notifyd>=0.3.2)
   - property "volume-step-size" (used to be in channel xfce4-mixer)
 
 0.2.1
