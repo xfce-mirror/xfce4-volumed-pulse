@@ -28,6 +28,14 @@
 
 #include "xvd_notify.h"
 
+/* Icon names for the various audio notifications */
+#define ICON_AUDIO_VOLUME_MUTED		"audio-volume-muted"
+#define ICON_AUDIO_VOLUME_OFF		"audio-volume-off"
+#define ICON_AUDIO_VOLUME_LOW		"audio-volume-low"
+#define ICON_AUDIO_VOLUME_MEDIUM	"audio-volume-medium"
+#define ICON_AUDIO_VOLUME_HIGH		"audio-volume-high"
+#define ICON_MICROPHONE_MUTED		"microphone-sensitivity-muted"
+#define ICON_MICROPHONE_HIGH		"microphone-sensitivity-high"
 
 void
 xvd_notify_notification(XvdInstance *Inst,
@@ -37,7 +45,7 @@ xvd_notify_notification(XvdInstance *Inst,
 	GError* error						= NULL;
 	gchar*  title						= NULL;
 
-	if ((icon != NULL) && (g_strcmp0(icon, "audio-volume-muted") == 0)) {
+	if ((icon != NULL) && (g_strcmp0(icon, ICON_AUDIO_VOLUME_MUTED) == 0)) {
 		// TRANSLATORS: this is the body of the ATK interface of the volume notifications. This is the case when volume is muted
 		title = g_strdup ("Volume is muted");
 	}
@@ -74,20 +82,20 @@ xvd_notify_volume_notification(XvdInstance *Inst)
 {
 	gint vol = xvd_get_readable_volume (&Inst->volume);
 	if (vol == 0)
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-off", vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_OFF, vol);
 	else if (vol < 34)
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-low", vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_LOW, vol);
 	else if (vol < 67)
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-medium", vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_MEDIUM, vol);
 	else
-		xvd_notify_notification (Inst, (Inst->mute) ? "audio-volume-muted" : "audio-volume-high", vol);
+		xvd_notify_notification (Inst, (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_HIGH, vol);
 }
 
 void
 xvd_notify_overshoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst,
-	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-high",
+	    (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_HIGH,
 	    (Inst->gauge_notifications) ? 101 : 100);
 }
 
@@ -95,7 +103,7 @@ void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst,
-	    (Inst->mute) ? "audio-volume-muted" : "audio-volume-low",
+	    (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_LOW,
 	    (Inst->gauge_notifications) ? -1 : 0);
 }
 
@@ -107,7 +115,7 @@ xvd_notify_mic_notification(XvdInstance *Inst)
 	gchar*  icon						= NULL;
 
 	title = g_strdup_printf ("Microphone is %s", (Inst->mic_mute) ? "muted" : "active");
-	icon = (Inst->mic_mute) ? "microphone-sensitivity-muted" : "microphone-sensitivity-high";
+	icon = (Inst->mic_mute) ? ICON_MICROPHONE_MUTED : ICON_MICROPHONE_HIGH;
 
 	notify_notification_update (Inst->notification_mic,
                               title,
