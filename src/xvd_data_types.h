@@ -37,10 +37,9 @@
 #include <libnotify/notification.h>
 #endif
 
-#define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
-#define XFCONF_MIXER_VOL_STEP "/volume-step-size"
-#define VOL_STEP_DEFAULT_VAL 5
 #define XFCONF_VOLUMED_PULSE_CHANNEL_NAME "xfce4-volumed-pulse"
+#define XFCONF_MIXER_VOL_STEP_PROP "/volume-step-size"
+#define VOL_STEP_DEFAULT_VAL 5
 #define XFCONF_ICON_STYLE_PROP "/icon-style"
 #define ICONS_STYLE_NORMAL 0
 #define ICONS_STYLE_SYMBOLIC 1

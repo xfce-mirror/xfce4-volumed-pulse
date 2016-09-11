@@ -102,7 +102,6 @@ xvd_instance_init(XvdInstance *i)
 	i->pulse_context = NULL;
 	i->sink_index = -1;
 	i->source_index = -1;
-	i->mixer_chan = NULL;
 	i->settings = NULL;
 	i->loop = NULL;
 	#ifdef HAVE_LIBNOTIFY
