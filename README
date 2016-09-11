@@ -2,13 +2,18 @@
 
 Please read INSTALL
 
+== Xfconf properties
+In the channel xfce4-volumed-pulse you can set the following properties:
+ * icon-style (int): 0: normal icon style (default), 1: symbolic icon style
+ * volume-step-size (int): default: 5
+
 == Reporting a bug
 
 https://bugs.launchpad.net/xfce4-volumed
 
 == Known Gstreamer problems
  * No sound card detected: if this happens you're probably missing a GStreamer
-   plugin for your sound system. If you're using ALSA then installing 
+   plugin for your sound system. If you're using ALSA then installing
    gstreamer0.10-alsa should fix it.
 
 == Known installation problems
