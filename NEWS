@@ -1,3 +1,9 @@
+0.2.1
+=====
+- Fix unresponsiveness after communicating with daemon (LP: #1347272, thanks Alistair)
+- Update bug reporting URL to Xfce Bugzilla
+- Bump autoconf, automake, and libtool versions
+
 0.2.0
 =====
 - Initial port to Pulseaudio.
