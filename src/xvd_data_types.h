@@ -72,7 +72,6 @@ typedef struct {
 	int               mic_mute;
 
 	/* Xfconf vars */
-	XfconfChannel		*chan;
 	XfconfChannel       *settings;
 	guint				vol_step;
 

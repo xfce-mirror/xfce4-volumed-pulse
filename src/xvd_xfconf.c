@@ -66,7 +66,6 @@ xvd_xfconf_init(XvdInstance *Inst)
 			g_warning ("Couldn't initialize the volume-step-size property (default: 5).");
 	}
 
-	//Inst->mixer_chan = xfconf_channel_get (XFCONF_MIXER_CHANNEL_NAME);
 	g_signal_connect (G_OBJECT (Inst->settings), "property-changed", G_CALLBACK (_xvd_xfconf_handle_changes), Inst);
 
 	return TRUE;
