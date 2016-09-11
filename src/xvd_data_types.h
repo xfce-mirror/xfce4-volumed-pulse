@@ -40,9 +40,21 @@
 #define XFCONF_MIXER_CHANNEL_NAME "xfce4-mixer"
 #define XFCONF_MIXER_VOL_STEP "/volume-step-size"
 #define VOL_STEP_DEFAULT_VAL 5
+#define XFCONF_VOLUMED_PULSE_CHANNEL_NAME "xfce4-volumed-pulse"
+#define XFCONF_ICON_STYLE_PROP "/icon-style"
+#define ICONS_STYLE_NORMAL 0
+#define ICONS_STYLE_SYMBOLIC 0
 
 #define XVD_APPNAME "Xfce volume daemon"
 
+/* Icon names for the various audio notifications */
+#define ICON_AUDIO_VOLUME_MUTED		"audio-volume-muted"
+#define ICON_AUDIO_VOLUME_OFF		"audio-volume-off"
+#define ICON_AUDIO_VOLUME_LOW		"audio-volume-low"
+#define ICON_AUDIO_VOLUME_MEDIUM	"audio-volume-medium"
+#define ICON_AUDIO_VOLUME_HIGH		"audio-volume-high"
+#define ICON_MICROPHONE_MUTED		"microphone-sensitivity-muted"
+#define ICON_MICROPHONE_HIGH		"microphone-sensitivity-high"
 
 typedef enum _XvdVolStepDirection
 {
@@ -59,11 +71,12 @@ typedef struct {
 	pa_cvolume        volume;
 	int               mute;
 	int               mic_mute;
-	
+
 	/* Xfconf vars */
 	XfconfChannel		*chan;
+	XfconfChannel       *settings;
 	guint				vol_step;
-  
+
   #ifdef HAVE_LIBNOTIFY
     /* Libnotify vars */
 	gboolean			gauge_notifications;

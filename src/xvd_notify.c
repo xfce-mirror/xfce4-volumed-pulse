@@ -25,17 +25,8 @@
 #include <libnotify/notify.h>
 
 #include "xvd_pulse.h"
-
 #include "xvd_notify.h"
-
-/* Icon names for the various audio notifications */
-#define ICON_AUDIO_VOLUME_MUTED		"audio-volume-muted"
-#define ICON_AUDIO_VOLUME_OFF		"audio-volume-off"
-#define ICON_AUDIO_VOLUME_LOW		"audio-volume-low"
-#define ICON_AUDIO_VOLUME_MEDIUM	"audio-volume-medium"
-#define ICON_AUDIO_VOLUME_HIGH		"audio-volume-high"
-#define ICON_MICROPHONE_MUTED		"microphone-sensitivity-muted"
-#define ICON_MICROPHONE_HIGH		"microphone-sensitivity-high"
+#include "xvd_xfconf.h"
 
 void
 xvd_notify_notification(XvdInstance *Inst,
@@ -53,6 +44,10 @@ xvd_notify_notification(XvdInstance *Inst,
 		// TRANSLATORS: %d is the volume displayed as a percent, and %c is replaced by '%'. If it doesn't fit in your locale feel free to file a bug.
 		title = g_strdup_printf ("Volume is at %d%c", value, '%');
 	}
+
+	if (xfconf_channel_get_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
+								 ICONS_STYLE_NORMAL) == ICONS_STYLE_SYMBOLIC)
+		icon = g_strconcat (icon, "-symbolic", NULL);
 
 	notify_notification_update (Inst->notification,
 				title,

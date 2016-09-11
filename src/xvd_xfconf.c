@@ -20,7 +20,6 @@
 
 #include "xvd_xfconf.h"
 
-
 static void
 _xvd_xfconf_reinit_vol_step(XvdInstance *Inst)
 {
@@ -28,7 +27,7 @@ _xvd_xfconf_reinit_vol_step(XvdInstance *Inst)
 		g_debug ("Xfconf reinit: volume step is now %u\n", Inst->vol_step);
 }
 
-static void 
+static void
 _xvd_xfconf_handle_changes(XfconfChannel  *re_channel,
 						   const gchar    *re_property_name,
 						   const GValue   *re_value,
@@ -36,7 +35,7 @@ _xvd_xfconf_handle_changes(XfconfChannel  *re_channel,
 {
 	XvdInstance *Inst = (XvdInstance *)ptr;
 	g_debug ("Xfconf event on %s\n", re_property_name);
-	
+
 	if (g_strcmp0 (re_property_name, XFCONF_MIXER_VOL_STEP) == 0) {
 		_xvd_xfconf_reinit_vol_step(Inst);
 	}
@@ -53,25 +52,36 @@ xvd_xfconf_init(XvdInstance *Inst)
 		return FALSE;
 	}
 
-	Inst->chan = xfconf_channel_get (XFCONF_MIXER_CHANNEL_NAME);
-	g_signal_connect (G_OBJECT (Inst->chan), "property-changed", G_CALLBACK (_xvd_xfconf_handle_changes), Inst);
+	/* Initialize an xfconf channel for xfce4-volumed-pulse */
+	Inst->settings = xfconf_channel_new (XFCONF_VOLUMED_PULSE_CHANNEL_NAME);
+	if (!xfconf_channel_has_property (Inst->settings, XFCONF_ICON_STYLE_PROP)) {
+		if (!xfconf_channel_set_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
+									  ICONS_STYLE_NORMAL))
+			g_warning ("Couldn't set icon-style property to 0.");
+	}
+
+	Inst->mixer_chan = xfconf_channel_get (XFCONF_MIXER_CHANNEL_NAME);
+	g_signal_connect (G_OBJECT (Inst->mixer_chan), "property-changed", G_CALLBACK (_xvd_xfconf_handle_changes), Inst);
+
 	return TRUE;
 }
 
-void 
+void
 xvd_xfconf_get_vol_step(XvdInstance *Inst)
 {
-	Inst->vol_step = xfconf_channel_get_uint (Inst->chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);
+	Inst->vol_step = xfconf_channel_get_uint (Inst->mixer_chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);
 	if (Inst->vol_step > 100) {
 		g_debug ("%s\n", "The volume step xfconf property is out of range, setting back to default");
 		Inst->vol_step = VOL_STEP_DEFAULT_VAL;
-		xfconf_channel_set_uint (Inst->chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);
+		xfconf_channel_set_uint (Inst->mixer_chan, XFCONF_MIXER_VOL_STEP, VOL_STEP_DEFAULT_VAL);
 	}
 	g_debug("%s %u\n", "Xfconf volume step:", Inst->vol_step);
 }
 
-void 
+void
 xvd_xfconf_shutdown(XvdInstance *Inst)
 {
+	if(Inst->settings)
+		g_object_unref(Inst->settings);
 	xfconf_shutdown ();
 }
