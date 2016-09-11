@@ -3,7 +3,11 @@
 	Steve Dodier <sidnioulz@gmail.com>
  * pulseaudio port
 	Lionel Le Folgoc <lionel@lefolgoc.net>
+ * various improvements
+    Simon Steinbeiß <simon@xfce.org>
 
 === Contributions
  * xvd_mixer.c
  	Jannis Pohlmann <jannis@xfce.org>
+ * MicMute key support
+    Christian Pointner
