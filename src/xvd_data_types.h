@@ -43,7 +43,7 @@
 #define XFCONF_VOLUMED_PULSE_CHANNEL_NAME "xfce4-volumed-pulse"
 #define XFCONF_ICON_STYLE_PROP "/icon-style"
 #define ICONS_STYLE_NORMAL 0
-#define ICONS_STYLE_SYMBOLIC 0
+#define ICONS_STYLE_SYMBOLIC 1
 
 #define XVD_APPNAME "Xfce volume daemon"
 
