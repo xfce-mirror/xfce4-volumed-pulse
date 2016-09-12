@@ -39,6 +39,10 @@ _xvd_xfconf_handle_changes(XfconfChannel  *re_channel,
 	if (g_strcmp0 (re_property_name, XFCONF_MIXER_VOL_STEP_PROP) == 0) {
 		_xvd_xfconf_reinit_vol_step(Inst);
 	}
+	else if (g_strcmp0 (re_property_name, XFCONF_ICON_STYLE_PROP) == 0) {
+		Inst->icon_style = xfconf_channel_get_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
+													ICONS_STYLE_NORMAL);
+	}
 }
 
 gboolean
@@ -58,7 +62,13 @@ xvd_xfconf_init(XvdInstance *Inst)
 		if (!xfconf_channel_set_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
 									  ICONS_STYLE_NORMAL))
 			g_warning ("Couldn't initialize icon-style property (default: 0).");
+		else
+			Inst->icon_style = xfconf_channel_get_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
+									  ICONS_STYLE_NORMAL);
 	}
+	else
+		Inst->icon_style = xfconf_channel_get_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
+									  ICONS_STYLE_NORMAL);
 
 	if (!xfconf_channel_has_property (Inst->settings, XFCONF_MIXER_VOL_STEP_PROP)) {
 		if (!xfconf_channel_set_uint (Inst->settings, XFCONF_MIXER_VOL_STEP_PROP,

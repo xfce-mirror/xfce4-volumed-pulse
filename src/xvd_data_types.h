@@ -73,6 +73,7 @@ typedef struct {
 
 	/* Xfconf vars */
 	XfconfChannel       *settings;
+	guint               icon_style;
 	guint				vol_step;
 
   #ifdef HAVE_LIBNOTIFY

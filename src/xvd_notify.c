@@ -45,8 +45,7 @@ xvd_notify_notification(XvdInstance *Inst,
 		title = g_strdup_printf ("Volume is at %d%c", value, '%');
 	}
 
-	if (xfconf_channel_get_uint (Inst->settings, XFCONF_ICON_STYLE_PROP,
-								 ICONS_STYLE_NORMAL) == ICONS_STYLE_SYMBOLIC)
+	if (Inst->icon_style == ICONS_STYLE_SYMBOLIC)
 		icon = g_strconcat (icon, "-symbolic", NULL);
 
 	notify_notification_update (Inst->notification,
