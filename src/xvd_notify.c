@@ -98,7 +98,7 @@ void
 xvd_notify_undershoot_notification(XvdInstance *Inst)
 {
 	xvd_notify_notification (Inst,
-	    (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_LOW,
+	    (Inst->mute) ? ICON_AUDIO_VOLUME_MUTED : ICON_AUDIO_VOLUME_OFF,
 	    (Inst->gauge_notifications) ? -1 : 0);
 }
 
