@@ -55,6 +55,7 @@ xvd_notify_notification(XvdInstance *Inst,
 
 	g_free (title);
 
+	notify_notification_set_hint (Inst->notification, "transient", g_variant_new_boolean (TRUE));
 	if (Inst->gauge_notifications) {
 		notify_notification_set_hint_int32 (Inst->notification,
 							"value",
@@ -118,6 +119,7 @@ xvd_notify_mic_notification(XvdInstance *Inst)
 
 	g_free (title);
 
+	notify_notification_set_hint (Inst->notification, "transient", g_variant_new_boolean (TRUE));
 	if (Inst->gauge_notifications) {
 		notify_notification_set_hint_int32 (Inst->notification_mic,
 							 LAYOUT_ICON_ONLY,
