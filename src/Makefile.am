@@ -1,6 +1,6 @@
 package_exec = `echo $(PACKAGE) | sed '$(program_transform_name)'`
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I${top_srcdir} \
 	-DG_LOG_DOMAIN=\"$(package_exec)\" \
 	$(PLATFORM_CPPFLAGS)
