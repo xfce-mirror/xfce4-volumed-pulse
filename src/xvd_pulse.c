@@ -362,8 +362,7 @@ xvd_notify_mic_callback (pa_context *c,
                             int         success,
                             void       *userdata)
 {
-  XvdInstance  *i = (XvdInstance *) userdata;
-  guint32       r_oldv, r_curv;
+  XvdInstance *i = (XvdInstance *) userdata;
 
   if (!c || !userdata)
     {
