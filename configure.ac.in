@@ -20,10 +20,16 @@ AC_REVISION([@REVISION@])
 dnl ***************************
 dnl *** Initialize automake ***
 dnl ***************************
-AM_INIT_AUTOMAKE([1.11 dist-bzip2 tar-ustar no-dist-gzip])
+AM_INIT_AUTOMAKE([1.8 no-dist-gzip dist-bzip2 tar-ustar foreign])
 AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE()
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+dnl *******************************
+dnl *** Check for UNIX variants ***
+dnl *******************************
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
 
 dnl **************************
 dnl *** Initialize libtool ***
@@ -36,18 +42,12 @@ dnl *** Support program renaming ***
 dnl ********************************
 AC_ARG_PROGRAM()
 
-dnl *******************************
-dnl *** Check for UNIX variants ***
-dnl *******************************
-AC_USE_SYSTEM_EXTENSIONS
-AC_SEARCH_LIBS([strerror],[cposix])
-
 dnl ********************************
 dnl *** Check for basic programs ***
 dnl ********************************
 AC_PROG_CC()
 AM_PROG_CC_C_O
-AC_PROG_LD()
+LT_PATH_LD()
 AC_PROG_INSTALL()
 
 dnl **********************************
