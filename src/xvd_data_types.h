@@ -70,6 +70,7 @@ typedef struct {
 	pa_cvolume        volume;
 	int               mute;
 	int               mic_mute;
+	guint             reconnect_id;
 
 	/* Xfconf vars */
 	XfconfChannel       *settings;

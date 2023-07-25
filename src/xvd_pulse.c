@@ -112,6 +112,11 @@ xvd_open_pulse (XvdInstance *i)
 void
 xvd_close_pulse (XvdInstance *i)
 {
+  if (i->reconnect_id != 0)
+    {
+      g_source_remove(i->reconnect_id);
+      i->reconnect_id = 0;
+    }
   if (i->pulse_context)
     {
       pa_context_unref (i->pulse_context);
@@ -468,6 +473,16 @@ xvd_subscribed_events_callback (pa_context                     *c,
 }
 
 
+static gboolean
+xvd_connect_to_pulse_idle (gpointer data)
+{
+  XvdInstance *i = data;
+  xvd_connect_to_pulse(i);
+  i->reconnect_id = 0;
+  return FALSE;
+}
+
+
 /**
  * Callback to check the status of context initialization.
  */
@@ -504,9 +519,10 @@ xvd_context_state_callback (pa_context *c,
         i->sink_index = PA_INVALID_INDEX;
       break;
       case PA_CONTEXT_FAILED:
-        g_critical("xvd_context_state_callback: The connection failed or was disconnected, is PulseAudio Daemon running?");
+        g_warning("xvd_context_state_callback: The connection failed or was disconnected, is PulseAudio Daemon running? Try to reconnect once in a few seconds.");
         i->sink_index = PA_INVALID_INDEX;
         i->source_index = PA_INVALID_INDEX;
+        i->reconnect_id = g_timeout_add_seconds(5, xvd_connect_to_pulse_idle, i);
       break;
       case PA_CONTEXT_READY:
         g_debug ("xvd_context_state_callback: The connection is established, the context is ready to execute operations");
