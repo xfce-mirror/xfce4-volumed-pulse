@@ -1,3 +1,17 @@
+0.2.4 (2023-07-25)
+=====
+- Properly init and free XvdInstance
+- Auto-reconnect to Pulseausio server at connection lost (Fixes #1)
+- Update copyright year and bug report address
+- Add basic GitLab pipeline
+- Fix autotools warnings
+- build: Bump GLib minimum required to 2.26
+- Fix compilation warnings
+- automake: INCLUDES -> AM_CPPFLAGS
+- autoconf: Some updates
+- Add `.gitignore`
+- Post release version bump
+
 0.2.2
 =====
 - Support for the MicMute key (Christian Pointner)
