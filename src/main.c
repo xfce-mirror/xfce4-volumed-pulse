@@ -92,7 +92,7 @@ xvd_shutdown(void)
 	xvd_keys_release (Inst);
 	xvd_xfconf_shutdown (Inst);
 
-	//TODO xvd_instance_free
+	g_free (Inst);
 }
 
 static void
@@ -145,7 +145,7 @@ main(gint argc, gchar **argv)
 		return EXIT_SUCCESS;
 	}
 
-	Inst = g_malloc (sizeof (XvdInstance));
+	Inst = g_new0 (XvdInstance, 1);
 	xvd_instance_init (Inst);
 
 	/* daemonize the process */
