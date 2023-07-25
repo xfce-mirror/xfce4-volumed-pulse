@@ -12,7 +12,8 @@ m4_define([xfce4_volumed_pulse_version], [xfce4_volumed_pulse_version_major().xf
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
-AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [http://bugzilla.xfce.org/])
+AC_COPYRIGHT([Copyright (c) 2009-2023 The Xfce development team. All rights reserved.])
+AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [https://gitlab.xfce.org/apps/xfce4-volumed-pulse])
 AC_PREREQ([2.60])
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION([@REVISION@])
