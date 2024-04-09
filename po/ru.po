@@ -1,0 +1,34 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Xfce
+# This file is distributed under the same license as the xfce-apps.xfce4-volumed-pulse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Andrei Stepanov, 2024
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: xfce-apps.xfce4-volumed-pulse\n"
+"Report-Msgid-Bugs-To: https://gitlab.xfce.org/\n"
+"POT-Creation-Date: 2024-04-09 16:21+0200\n"
+"PO-Revision-Date: 2024-04-09 14:25+0000\n"
+"Last-Translator: Andrei Stepanov, 2024\n"
+"Language-Team: Russian (https://app.transifex.com/xfce/teams/16840/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: data/xfce4-volumed-pulse.desktop.in.in:5
+msgid "XFCE Volume Daemon (Pulseaudio)"
+msgstr "Демон громкости звука XFCE (PulseAudio)"
+
+#: data/xfce4-volumed-pulse.desktop.in.in:6
+msgid ""
+"Daemon managing the volume multimedia keys and displaying volume "
+"notifications for Pulseaudio"
+msgstr ""
+"Демон, управляющий мультимедийными клавишами громкости и отображающий "
+"уведомления громкости для PulseAudio"
