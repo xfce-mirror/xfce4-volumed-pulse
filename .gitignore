@@ -1,9 +1,9 @@
+*~
 *.o
 aclocal.m4
 compile
 config.*
 configure
-configure.ac
 depcomp
 INSTALL
 install-sh

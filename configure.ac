@@ -1,22 +1,16 @@
 dnl ***************************
 dnl *** Version information ***
 dnl ***************************
-m4_define([xfce4_volumed_pulse_version_major], [0])
-m4_define([xfce4_volumed_pulse_version_minor], [2])
-m4_define([xfce4_volumed_pulse_version_micro], [4])
-m4_define([xfce4_volumed_pulse_version_nano], [])
-m4_define([xfce4_volumed_pulse_version_build], [@REVISION@])
-m4_define([xfce4_volumed_pulse_version_tag], [git]) # Leave empty for releases
-m4_define([xfce4_volumed_pulse_version], [xfce4_volumed_pulse_version_major().xfce4_volumed_pulse_version_minor().xfce4_volumed_pulse_version_micro()ifelse(xfce4_volumed_pulse_version_nano(), [], [], [.xfce4_volumed_pulse_version_nano()])ifelse(xfce4_volumed_pulse_version_tag(), [git], [xfce4_volumed_pulse_version_tag()-xfce4_volumed_pulse_version_build()], [xfce4_volumed_pulse_version_tag()])])
+XDT_VERSION_INIT([0.2.4], [git])
 
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
 AC_COPYRIGHT([Copyright (c) 2009-2023 The Xfce development team. All rights reserved.])
-AC_INIT([xfce4-volumed-pulse], [xfce4_volumed_pulse_version], [https://gitlab.xfce.org/apps/xfce4-volumed-pulse])
-AC_PREREQ([2.60])
+AC_INIT([xfce4-volumed-pulse], [xdt_version], [https://gitlab.xfce.org/apps/xfce4-volumed-pulse])
+AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
-AC_REVISION([@REVISION@])
+AC_REVISION([xdt_version_build])
 
 dnl ***************************
 dnl *** Initialize automake ***
@@ -83,7 +77,7 @@ XDT_CHECK_OPTIONAL_PACKAGE([LIBNOTIFY], [libnotify], [0.1.3],
 dnl ***********************************
 dnl *** Check for debugging support ***
 dnl ***********************************
-XDT_FEATURE_DEBUG()
+XDT_FEATURE_DEBUG([xdt_debug_default])
 
 dnl **************************************
 dnl *** Check for linker optimizations ***
