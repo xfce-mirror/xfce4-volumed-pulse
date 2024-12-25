@@ -1,3 +1,39 @@
+0.2.5 (2024-12-25)
+=====
+- Update copyright year
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- build: Use XDT_VERSION_INIT and get rid of configure.ac.in
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- I18n: Update po/LINGUAS list
+- build: Add translation
+- Translation Updates:
+  , Albanian, Asturian, Basque, Bulgarian, Chinese (China), Chinese
+  (Taiwan), Czech, Danish, Dutch, English (United Kingdom), Estonian,
+  French, Galician, German, Greek, Hebrew, Hungarian, Interlingue,
+  Italian, Japanese, Kazakh, Korean, Lithuanian, Occitan (post 1500),
+  Polish, Portuguese, Portuguese (Brazil), Romanian, Russian, Serbian,
+  Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese
+
 0.2.4 (2023-07-25)
 =====
 - Properly init and free XvdInstance
