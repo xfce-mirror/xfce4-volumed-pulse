@@ -6,7 +6,7 @@ XDT_VERSION_INIT([0.2.4], [git])
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
-AC_COPYRIGHT([Copyright (c) 2009-2023 The Xfce development team. All rights reserved.])
+AC_COPYRIGHT([Copyright (c) 2009-2024 The Xfce development team. All rights reserved.])
 AC_INIT([xfce4-volumed-pulse], [xdt_version], [https://gitlab.xfce.org/apps/xfce4-volumed-pulse])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
