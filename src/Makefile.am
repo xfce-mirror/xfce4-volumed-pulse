@@ -39,6 +39,9 @@ xfce4_volumed_pulse_LDADD = \
 	$(LIBPULSE_LIBS) \
 	$(LIBPULSEMAINLOOPGLIB_LIBS)
 
+EXTRA_DIST = \
+	meson.build
+
 #
 # Optional support for libnotify
 #

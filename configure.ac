@@ -2,15 +2,20 @@ dnl ***************************
 dnl *** Version information ***
 dnl ***************************
 XDT_VERSION_INIT([0.2.5], [git])
+m4_define([copyright_year], [2025])
 
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
-AC_COPYRIGHT([Copyright (c) 2009-2024 The Xfce development team. All rights reserved.])
+AC_COPYRIGHT([Copyright (c) 2009-copyright_year() The Xfce development team. All rights reserved.])
 AC_INIT([xfce4-volumed-pulse], [xdt_version], [https://gitlab.xfce.org/apps/xfce4-volumed-pulse])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION([xdt_version_build])
+AC_DEFINE([VERSION_FULL], [PACKAGE_VERSION], [Alias for VERSION and PACKAGE_VERSION for meson compatibility])
+COPYRIGHT_YEAR=copyright_year()
+AC_DEFINE_UNQUOTED([COPYRIGHT_YEAR], ["$COPYRIGHT_YEAR"], [Copyright year])
+AC_SUBST([COPYRIGHT_YEAR])
 
 dnl ***************************
 dnl *** Initialize automake ***
@@ -61,9 +66,9 @@ AC_CHECK_FUNCS([daemon setsid])
 dnl ***********************************
 dnl *** Check for required packages ***
 dnl ***********************************
-XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.26])
-XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.20])
-XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.6.0])
+XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.66])
+XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.24])
+XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.18.0])
 XDT_CHECK_PACKAGE([LIBPULSE], [libpulse], [0.9.19])
 XDT_CHECK_PACKAGE([LIBPULSEMAINLOOPGLIB], [libpulse-mainloop-glib], [0.9.19])
 XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder-3.0], [0.2.0])
