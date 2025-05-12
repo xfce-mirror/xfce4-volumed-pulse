@@ -61,9 +61,9 @@ AC_CHECK_FUNCS([daemon setsid])
 dnl ***********************************
 dnl *** Check for required packages ***
 dnl ***********************************
-XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.26])
-XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.20])
-XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.6.0])
+XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.66])
+XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.24])
+XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.18.0])
 XDT_CHECK_PACKAGE([LIBPULSE], [libpulse], [0.9.19])
 XDT_CHECK_PACKAGE([LIBPULSEMAINLOOPGLIB], [libpulse-mainloop-glib], [0.9.19])
 XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder-3.0], [0.2.0])
