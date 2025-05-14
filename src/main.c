@@ -21,6 +21,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#ifdef HAVE_XFCE_REVISION_H
+#include "xfce-revision.h"
+#endif
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -138,7 +141,7 @@ main(gint argc, gchar **argv)
 	/* check if we should print version information */
 	if (G_UNLIKELY (opt_version))
 	{
-		g_print ("%s %s\n\n", G_LOG_DOMAIN, PACKAGE_VERSION);
+		g_print ("%s %s\n\n", G_LOG_DOMAIN, VERSION_FULL);
 		g_print ("Please report bugs to <%s>.", PACKAGE_BUGREPORT);
 		g_print ("\n");
 
