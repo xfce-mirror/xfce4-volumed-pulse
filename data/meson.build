@@ -4,5 +4,5 @@ i18n.merge_file(
   po_dir: '..' / 'po',
   type: 'desktop',
   install: true,
-  install_dir: get_option('sysconfdir') / 'xdg' / 'autostart',
+  install_dir: get_option('prefix') / get_option('sysconfdir') / 'xdg' / 'autostart',
 )
