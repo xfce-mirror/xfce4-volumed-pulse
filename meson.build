@@ -33,8 +33,8 @@ xfconf = dependency('libxfconf-0', version: dependency_versions['xfce4'])
 
 feature_cflags = []
 
-# Optional dependencies
-libnotify = dependency('libnotify', version: dependency_versions['libnotify'], required: false)
+# Feature: 'libnotify'
+libnotify = dependency('libnotify', version: dependency_versions['libnotify'], required: get_option('libnotify'))
 if libnotify.found()
   feature_cflags += '-DHAVE_LIBNOTIFY=1'
 endif
