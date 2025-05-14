@@ -32,3 +32,4 @@ po/quot.sed
 po/remove-potcdate.sed
 po/remove-potcdate.sin
 po/xfce4-volumed-pulse.pot
+po/*.gmo
