@@ -1,7 +1,7 @@
 project(
   'xfce4-volumed-pulse',
   'c',
-  version : '0.2.5-dev',
+version : '0.3.0',
   license : 'GPL-3.0-or-later',
   meson_version : '>= 0.54.0',
   default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=2']
