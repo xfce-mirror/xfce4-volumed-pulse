@@ -21,10 +21,6 @@
 #ifndef _XVD_NOTIFY_H
 #define _XVD_NOTIFY_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "xvd_data_types.h"
 
 

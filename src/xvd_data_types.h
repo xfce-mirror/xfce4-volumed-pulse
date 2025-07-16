@@ -21,10 +21,6 @@
 #ifndef _XVD_DATA_TYPES_H
 #define _XVD_DATA_TYPES_H
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <glib.h>
 
 #include <xfconf/xfconf.h>
